@@ -25,14 +25,14 @@ namespace PunchedCards
                                   GetPunchedCardsPerLabelString(topPunchedCardsPerLabel));
 
                 var trainingCorrectRecognitionsPerLabel =
-                    LookupHelper.CountCorrectRecognitions(trainingData, topPunchedCardsPerLabel, puncher);
+                    RecognitionHelper.CountCorrectRecognitions(trainingData, topPunchedCardsPerLabel, puncher);
                 Console.WriteLine("Training results: " +
                                   trainingCorrectRecognitionsPerLabel
                                       .Sum(correctRecognitionsPerLabel => correctRecognitionsPerLabel.Value) +
                                   " correct recognitions of " + trainingData.Count);
 
                 var testCorrectRecognitionsPerLabel =
-                    LookupHelper.CountCorrectRecognitions(testData, topPunchedCardsPerLabel, puncher);
+                    RecognitionHelper.CountCorrectRecognitions(testData, topPunchedCardsPerLabel, puncher);
                 Console.WriteLine("Test results: " +
                                   testCorrectRecognitionsPerLabel
                                       .Sum(correctRecognitionsPerLabel => correctRecognitionsPerLabel.Value) +
@@ -93,9 +93,9 @@ namespace PunchedCards
             var topPunchedCardsPerLabel =
                 new Dictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>>();
 
-            for (byte i = 0; i < DataHelper.LabelCount; i++)
+            for (byte i = 0; i < DataHelper.LabelsCount; i++)
             {
-                var label = BinaryStringsHelper.GetLabelString(i, DataHelper.LabelCount);
+                var label = BinaryStringsHelper.GetLabelString(i, DataHelper.LabelsCount);
 
                 var topPunchedCardsPerSpecificLabel = punchedCardsPerLabel
                     .OrderByDescending(punchedCardPerLabel => punchedCardPerLabel.Value[label].Count)

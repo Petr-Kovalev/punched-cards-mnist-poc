@@ -5,42 +5,42 @@ using System.Linq;
 
 namespace PunchedCards.Helpers
 {
-    internal static class LookupHelper
+    internal static class RecognitionHelper
     {
         internal static IEnumerable<KeyValuePair<string, int>> CountCorrectRecognitions(
             IEnumerable<Tuple<string, string>> data,
             IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsCollection,
             IPuncher<string, string, string> puncher)
         {
-            var matchesPerLabel = new ConcurrentDictionary<string, int>();
+            var correctRecognitionsPerLabel = new ConcurrentDictionary<string, int>();
 
             data
                 .AsParallel()
                 .ForAll(dataItem =>
                 {
-                    var matchingScoresPerLabelPerPunchedCard = CalculateMatchingScoresPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
+                    var matchingScoresPerLabelPerPunchedCard = CountCorrectRecognitionsPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
                     var topLabel = matchingScoresPerLabelPerPunchedCard
                         .OrderByDescending(s => s.Value.Sum(v => v.Value))
                         .First()
                         .Key;
                     if (topLabel == dataItem.Item2)
                     {
-                        matchesPerLabel.AddOrUpdate(
+                        correctRecognitionsPerLabel.AddOrUpdate(
                             dataItem.Item2,
                             key => 1,
                             (key, value) => value + 1);
                     }
                 });
 
-            return matchesPerLabel;
+            return correctRecognitionsPerLabel;
         }
 
-        internal static IDictionary<string, IDictionary<string, int>> CalculateMatchingScoresPerLabelPerPunchedCard(
+        internal static IDictionary<string, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
             IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsCollection, 
             string input,
             IPuncher<string, string, string> puncher)
         {
-            var matchingScores = new Dictionary<string, IDictionary<string, int>>();
+            var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<string, IDictionary<string, int>>();
 
             foreach (var punchedCardsCollectionItem in punchedCardsCollection)
             {
@@ -48,29 +48,29 @@ namespace PunchedCards.Helpers
                 var inputOneIndices = BinaryStringsHelper.GetOneIndices(punchedInput).ToList();
                 foreach (var label in punchedCardsCollectionItem.Value)
                 {
-                    ProcessTheSpecificLabel(matchingScores, punchedCardsCollectionItem.Key, label, inputOneIndices);
+                    ProcessTheSpecificLabel(correctRecognitionsPerLabelPerPunchedCard, punchedCardsCollectionItem.Key, label, inputOneIndices);
                 }
             }
 
-            return matchingScores;
+            return correctRecognitionsPerLabelPerPunchedCard;
         }
 
         private static void ProcessTheSpecificLabel(
-            IDictionary<string, IDictionary<string, int>> matchingScores,
+            IDictionary<string, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
             string punchedCardKey, 
             KeyValuePair<string, IReadOnlyCollection<Tuple<string, int>>> label, 
             ICollection<int> inputOneIndices)
         {
-            var punchedCardMatchingScorePerLabel = label.Value.Sum(punchInput =>
-                BinaryStringsHelper.CalculateMatchingScore(inputOneIndices, punchInput));
+            var punchedCardCorrectRecognitionsPerLabel = label.Value.Sum(punchedInput =>
+                BinaryStringsHelper.CalculateMatchingScore(inputOneIndices, punchedInput));
 
-            if (!matchingScores.TryGetValue(label.Key, out var dictionary))
+            if (!correctRecognitionsPerLabelPerPunchedCard.TryGetValue(label.Key, out var dictionary))
             {
                 dictionary = new Dictionary<string, int>();
-                matchingScores[label.Key] = dictionary;
+                correctRecognitionsPerLabelPerPunchedCard[label.Key] = dictionary;
             }
 
-            dictionary.Add(punchedCardKey, punchedCardMatchingScorePerLabel);
+            dictionary.Add(punchedCardKey, punchedCardCorrectRecognitionsPerLabel);
         }
     }
 }

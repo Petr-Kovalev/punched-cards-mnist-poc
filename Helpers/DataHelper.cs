@@ -7,7 +7,7 @@ namespace PunchedCards.Helpers
 {
     internal static class DataHelper
     {
-        internal const int LabelCount = 10;
+        internal const int LabelsCount = 10;
 
         internal static IEnumerable<Tuple<string, string>> ReadTrainingData()
         {
@@ -24,7 +24,7 @@ namespace PunchedCards.Helpers
             return readImagesFunction()
                 .Select(image => new Tuple<string, string>(
                     BinaryStringsHelper.GetValueString(image.Data),
-                    BinaryStringsHelper.GetLabelString(image.Label, LabelCount)));
+                    BinaryStringsHelper.GetLabelString(image.Label, LabelsCount)));
         }
     }
 }

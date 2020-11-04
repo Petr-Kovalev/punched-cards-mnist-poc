@@ -10,11 +10,11 @@ namespace PunchedCards.Helpers
         private const char NumberZeroCharacter = '0';
         private const char NumberOneCharacter = '1';
 
-        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<string, int> punchInput)
+        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<string, int> punchedInput)
         {
             return inputOneIndices
-                       .Count(inputOneIndex => punchInput.Item1[inputOneIndex] == NumberOneCharacter)
-                   * punchInput.Item2;
+                       .Count(inputOneIndex => punchedInput.Item1[inputOneIndex] == NumberOneCharacter)
+                   * punchedInput.Item2;
         }
 
         internal static IEnumerable<int> GetOneIndices(string input)
