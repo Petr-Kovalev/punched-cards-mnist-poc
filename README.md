@@ -83,6 +83,6 @@ Press "Enter" to exit the program...
 * Try the same algorithm on Fashion-MNIST
 * It's possible to calculate the entropy of the inputs of the specific punched card per label (to rank them)
 * Try calculate the relative importance of each bit of the punched card input (like attention mechanism). Use this metric for ranking.
-* Build hierarchy of punched cards to perform lookup over the multiple punched card results intead of simple max
+* Build hierarchy of punched cards to perform lookup over the multiple punched card results instead of simple max. Interesting for small bit lengths but multiple punched cards.
 * Prefer processing with less active bits on all stages (since electrical pulses in a brain requires energy)
 * Encode (or map) the binary input somehow to have/keep the 2% sparsity (like in a brain)
