@@ -1,6 +1,6 @@
 ### Punched cards proof of concept
 
-*Object recognition by random binary data lookup proof of concept*
+*Object recognition by random binary data lookup: proof of concept*
 
 Performing single-shot QMNIST digits recognition by lookup over the most different input bit sets of the training data.
 
