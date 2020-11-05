@@ -18,31 +18,41 @@ namespace PunchedCards
                 Console.WriteLine("Punched card bit length: " + punchedCardBitLength);
 
                 var puncher = new RandomPuncher(punchedCardBitLength);
-                var topPunchedCardsPerLabel =
-                    GetTopPunchedCardsPerLabel(GetPunchedCardsPerLabel(trainingData, puncher), 1);
+                var punchedCardsPerLabel = GetPunchedCardsPerLabel(trainingData, puncher);
 
-                Console.WriteLine("Unique lookup combinations per punched card (descending): " +
-                                  GetPunchedCardsPerLabelString(topPunchedCardsPerLabel));
+                Console.WriteLine();
+                Console.WriteLine("Global top punched card:");
+                WriteTrainingAndTestResults(GetGlobalTopPunchedCard(punchedCardsPerLabel), trainingData, testData, puncher);
+                Console.WriteLine();
 
-                var trainingCorrectRecognitionsPerLabel =
-                    RecognitionHelper.CountCorrectRecognitions(trainingData, topPunchedCardsPerLabel, puncher);
-                Console.WriteLine("Training results: " +
-                                  trainingCorrectRecognitionsPerLabel
-                                      .Sum(correctRecognitionsPerLabel => correctRecognitionsPerLabel.Value) +
-                                  " correct recognitions of " + trainingData.Count);
-
-                var testCorrectRecognitionsPerLabel =
-                    RecognitionHelper.CountCorrectRecognitions(testData, topPunchedCardsPerLabel, puncher);
-                Console.WriteLine("Test results: " +
-                                  testCorrectRecognitionsPerLabel
-                                      .Sum(correctRecognitionsPerLabel => correctRecognitionsPerLabel.Value) +
-                                  " correct recognitions of " + testData.Count);
-
+                Console.WriteLine("Top punched cards per label:");
+                WriteTrainingAndTestResults(GetTopPunchedCardsPerLabel(punchedCardsPerLabel, 1), trainingData, testData, puncher);
                 Console.WriteLine();
             }
 
             Console.WriteLine("Press \"Enter\" to exit the program...");
             Console.ReadLine();
+        }
+
+        private static void WriteTrainingAndTestResults(IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> topPunchedCardsPerLabel, List<Tuple<string, string>> trainingData, List<Tuple<string, string>> testData,
+            RandomPuncher puncher)
+        {
+            Console.WriteLine("Unique input combinations per punched card (descending): " +
+                              GetPunchedCardsPerLabelString(topPunchedCardsPerLabel));
+
+            var trainingCorrectRecognitionsPerLabel =
+                RecognitionHelper.CountCorrectRecognitions(trainingData, topPunchedCardsPerLabel, puncher);
+            Console.WriteLine("Training results: " +
+                              trainingCorrectRecognitionsPerLabel
+                                  .Sum(correctRecognitionsPerLabel => correctRecognitionsPerLabel.Value) +
+                              " correct recognitions of " + trainingData.Count);
+
+            var testCorrectRecognitionsPerLabel =
+                RecognitionHelper.CountCorrectRecognitions(testData, topPunchedCardsPerLabel, puncher);
+            Console.WriteLine("Test results: " +
+                              testCorrectRecognitionsPerLabel
+                                  .Sum(correctRecognitionsPerLabel => correctRecognitionsPerLabel.Value) +
+                              " correct recognitions of " + testData.Count);
         }
 
         private static string GetPunchedCardsPerLabelString(
@@ -72,8 +82,8 @@ namespace PunchedCards
                 : valuesString + ": sum " + uniqueLookupCounts.Item2;
         }
 
-        private static IDictionary<string, IDictionary<string, IReadOnlyCollection<string>>> GetGlobalTopPunchedCard(
-            IDictionary<string, IDictionary<string, IReadOnlyCollection<string>>> punchedCardsPerLabel)
+        private static IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> GetGlobalTopPunchedCard(
+            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsPerLabel)
         {
             var globalTopPunchedCard = punchedCardsPerLabel
                 .OrderByDescending(punchedCardPerLabel =>
@@ -81,7 +91,7 @@ namespace PunchedCards
                         .Value
                         .Sum(labelAndInputs => labelAndInputs.Value.Count))
                 .First();
-            return new Dictionary<string, IDictionary<string, IReadOnlyCollection<string>>>
+            return new Dictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>>
                 {{globalTopPunchedCard.Key, globalTopPunchedCard.Value}};
         }
 
