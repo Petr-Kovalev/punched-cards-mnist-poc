@@ -80,6 +80,7 @@ Press "Enter" to exit the program...
 * How to make sure that chosen punched card is the best? Need to evaluate all of them?
 
 ### Ideas:
+* Try the same algorithm on Fashion-MNIST
 * It's possible to calculate the entropy of the inputs of the specific punched card per label (to rank them)
 * Try calculate the relative importance of each bit of the punched card input (like attention mechanism). Use this metric for ranking.
 * Build hierarchy of punched cards to perform lookup over the multiple punched card results intead of simple max
