@@ -1,8 +1,8 @@
-### 'Punched cards' proof of concept
+### 'Punched cards' proof of concept for QMNIST
 
 *Object recognition by random binary data lookup: proof of concept*
 
-Performing single-shot QMNIST digits recognition by lookup over the most different input bit sets of the training data.
+Performing single-shot QMNIST digits recognition by lookup over the most different input bit sets of the training data
 
 Program output:
 ```
