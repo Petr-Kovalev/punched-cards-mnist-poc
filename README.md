@@ -4,6 +4,8 @@
 
 Performing single-shot QMNIST digits recognition by lookup over the most different input bit sets of the training data
 
+Same algorithm for Fashion-MNIST dataset: https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc
+
 Program output:
 ```
 Punched card bit length: 32
