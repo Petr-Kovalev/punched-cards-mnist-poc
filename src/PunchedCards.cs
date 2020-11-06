@@ -12,7 +12,7 @@ namespace PunchedCards
             var trainingData = DataHelper.ReadTrainingData().ToList();
             var testData = DataHelper.ReadTestData().ToList();
 
-            var punchedCardBitLengths = new[] {32, 64, 128, 256, 512};
+            var punchedCardBitLengths = new[] {32, 64, 128, 256, 512, 1024, 2048, 4096};
             foreach (var punchedCardBitLength in punchedCardBitLengths)
             {
                 Console.WriteLine("Punched card bit length: " + punchedCardBitLength);
@@ -151,7 +151,6 @@ namespace PunchedCards
                                             new Tuple<string, int>(punchedCardInputsGrouping.Key,
                                                 punchedCardInputsGrouping.Count()))
                                         .OrderByDescending(uniqueInputAndCount => uniqueInputAndCount.Item2)
-                                        //.ThenBy(uniqueInputAndCount => uniqueInputAndCount.Item1.Count(character => character == '1'))
                                         .ToList()));
         }
     }
