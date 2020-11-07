@@ -2,7 +2,7 @@
 
 *Object recognition by random binary data lookup: proof of concept*
 
-Performing single-shot QMNIST handwritten digits recognition by lookup over the most different input bit sets of the training data
+Performing single-shot QMNIST handwritten digits recognition by lookup over the most different input bit sets of the training data (out of 28⋅28⋅8=6272 bits per training sample)
 
 Same algorithm for Fashion-MNIST dataset: https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc
 
