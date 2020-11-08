@@ -6,7 +6,7 @@ Performing single-shot QMNIST handwritten digits recognition by lookup over the 
 
 Same algorithm for Fashion-MNIST dataset: https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc
 
-Program output:
+### Program output:
 ```
 Punched card bit length: 32
 
@@ -107,7 +107,10 @@ Test results: 40690 correct recognitions of 60000
 Press "Enter" to exit the program...
 ```
 
-### Interesting results:
+### Best results chart:
+![Preview1](./docs/images/chart.png)
+
+### Interesting facts:
 * Recognition accuracy on a best 512 bit punched card is 68.5%
 * One (global top) punched card works better or equal than set of top punched cards per specific label on any bit length
 * Starting from bit length 128 there are cases when all the inputs per specific label of the punched card are unique
