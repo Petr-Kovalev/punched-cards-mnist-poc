@@ -107,14 +107,14 @@ Test results: 40690 correct recognitions of 60000
 Press "Enter" to exit the program...
 ```
 
-### Best results chart:
+### Best result chart:
 ![Preview1](./docs/images/chart.png)
 
 ### Interesting facts:
 * Recognition accuracy on a best 512 bit punched card is 68.5%
 * One (global top) punched card works better or equal than set of top punched cards per specific label on any bit length
 * Starting from bit length 128 there are cases when all the inputs per specific label of the punched card are unique
-* Test set accuracy increasing linearly with the doubling of the punched card bit length up to 512. But after that no improvements (due to no punched cards ranking algorithm except max distinct inputs count)
+* Test set accuracy increasing linearly with the doubling of the punched card bit length up to 512. But after that no improvements (due to the lack of punched cards ranking algorithm except max distinct inputs count)
 
 ### Questions to answer:
 * How to rank the punched cards when all the inputs per specific label are unique?
