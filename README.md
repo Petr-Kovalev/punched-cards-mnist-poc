@@ -6,6 +6,26 @@ Performing single-shot QMNIST handwritten digits recognition by lookup over the 
 
 Same algorithm for Fashion-MNIST dataset: https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc
 
+### Best result chart:
+![Preview1](./docs/images/chart.png)
+
+### Interesting facts:
+* Recognition accuracy on a best 512 bit punched card is 68.5%
+* One (global top) punched card works better or equal than set of top punched cards per specific label on any bit length
+* Starting from bit length 128 there are cases when all the inputs per specific label of the punched card are unique
+* Test set accuracy increasing linearly with the doubling of the punched card bit length up to 512. But after that no improvements (due to the lack of punched cards ranking algorithm except max distinct inputs count)
+
+### Questions to answer:
+* How to rank the punched cards when all the inputs per specific label are unique?
+* How to make sure that chosen punched card is the best? Need to evaluate all of them?
+
+### Ideas:
+* It's possible to calculate the entropy of the inputs of the specific punched card per label (to rank them)
+* Try calculate the relative importance of each bit of the punched card input (like attention mechanism). Use this metric for ranking.
+* Build hierarchy of punched cards to perform lookup over the multiple punched card results instead of simple max. Interesting for small bit lengths but multiple punched cards.
+* Prefer processing with less active bits on all stages (since electrical pulses in a brain requires energy)
+* Encode (or map) the binary input somehow to have/keep the 2% sparsity (like in a brain)
+
 ### Program output:
 ```
 Punched card bit length: 32
@@ -106,23 +126,3 @@ Test results: 40690 correct recognitions of 60000
 
 Press "Enter" to exit the program...
 ```
-
-### Best result chart:
-![Preview1](./docs/images/chart.png)
-
-### Interesting facts:
-* Recognition accuracy on a best 512 bit punched card is 68.5%
-* One (global top) punched card works better or equal than set of top punched cards per specific label on any bit length
-* Starting from bit length 128 there are cases when all the inputs per specific label of the punched card are unique
-* Test set accuracy increasing linearly with the doubling of the punched card bit length up to 512. But after that no improvements (due to the lack of punched cards ranking algorithm except max distinct inputs count)
-
-### Questions to answer:
-* How to rank the punched cards when all the inputs per specific label are unique?
-* How to make sure that chosen punched card is the best? Need to evaluate all of them?
-
-### Ideas:
-* It's possible to calculate the entropy of the inputs of the specific punched card per label (to rank them)
-* Try calculate the relative importance of each bit of the punched card input (like attention mechanism). Use this metric for ranking.
-* Build hierarchy of punched cards to perform lookup over the multiple punched card results instead of simple max. Interesting for small bit lengths but multiple punched cards.
-* Prefer processing with less active bits on all stages (since electrical pulses in a brain requires energy)
-* Encode (or map) the binary input somehow to have/keep the 2% sparsity (like in a brain)
