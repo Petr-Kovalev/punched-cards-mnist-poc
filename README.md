@@ -68,6 +68,42 @@ Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958
 Training results: 41038 correct recognitions of 60000
 Test results: 41105 correct recognitions of 60000
 
+Punched card bit length: 1024
+
+Global top punched card:
+Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
+Training results: 40266 correct recognitions of 60000
+Test results: 40474 correct recognitions of 60000
+
+Top punched cards per label:
+Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
+Training results: 40266 correct recognitions of 60000
+Test results: 40474 correct recognitions of 60000
+
+Punched card bit length: 2048
+
+Global top punched card:
+Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
+Training results: 39288 correct recognitions of 60000
+Test results: 39442 correct recognitions of 60000
+
+Top punched cards per label:
+Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
+Training results: 39288 correct recognitions of 60000
+Test results: 39442 correct recognitions of 60000
+
+Punched card bit length: 4096
+
+Global top punched card:
+Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
+Training results: 40571 correct recognitions of 60000
+Test results: 40690 correct recognitions of 60000
+
+Top punched cards per label:
+Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
+Training results: 40571 correct recognitions of 60000
+Test results: 40690 correct recognitions of 60000
+
 Press "Enter" to exit the program...
 ```
 
@@ -75,7 +111,7 @@ Press "Enter" to exit the program...
 * Recognition accuracy on a best 512 bit punched card is 68.5%
 * One (global top) punched card works better or equal than set of top punched cards per specific label on any bit length
 * Starting from bit length 128 there are cases when all the inputs per specific label of the punched card are unique
-* Test set accuracy increasing linearly with the doubling of the punched card bit length
+* Test set accuracy increasing linearly with the doubling of the punched card bit length up to 512. But after that no improvements (due to no punched cards ranking algorithm except max distinct inputs count)
 
 ### Questions to answer:
 * How to rank the punched cards when all the inputs per specific label are unique?
