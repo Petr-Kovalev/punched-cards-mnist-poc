@@ -1,10 +1,10 @@
 ### 'Punched cards' proof of concept for QMNIST
 
-*Object recognition by sparse random binary data lookup: proof of concept*
+*Object recognition by sparse random binary data lookup: proof of concept. Complementary code for [this article](https://petr-kovalev.medium.com/punched-cards-object-recognition-97523a98857b)*
 
 Performing single-shot QMNIST handwritten digits recognition by lookup over the most different sparse input bit sets of the training data (out of 28⋅28⋅8=6272 bits per training sample)
 
-Same algorithm for Fashion-MNIST dataset: https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc
+Same algorithm applied to the Fashion-MNIST dataset [is here](https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc)
 
 ### Best result chart:
 ![Preview1](./docs/images/chart.png)
