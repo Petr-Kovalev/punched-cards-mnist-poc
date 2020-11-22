@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,19 +8,17 @@ namespace PunchedCards.Helpers
     internal static class BinaryStringsHelper
     {
         private const char NumberZeroCharacter = '0';
-        private const char NumberOneCharacter = '1';
 
-        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<string, int> punchedInput)
+        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<BitArray, int> punchedInput)
         {
-            return inputOneIndices.Count(inputOneIndex => punchedInput.Item1[inputOneIndex] == NumberOneCharacter) *
-                   punchedInput.Item2;
+            return inputOneIndices.Count(inputOneIndex => punchedInput.Item1[inputOneIndex]) * punchedInput.Item2;
         }
 
-        internal static IEnumerable<int> GetOneIndices(string input)
+        internal static IEnumerable< int> GetOneIndices(BitArray input)
         {
             for (var i = 0; i < input.Length; i++)
             {
-                if (input[i] == NumberOneCharacter)
+                if (input[i])
                 {
                     yield return i;
                 }

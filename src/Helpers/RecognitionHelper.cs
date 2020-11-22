@@ -10,8 +10,8 @@ namespace PunchedCards.Helpers
     {
         internal static IEnumerable<KeyValuePair<string, int>> CountCorrectRecognitions(
             IEnumerable<Tuple<BitArray, string>> data,
-            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsCollection,
-            IPuncher<string, BitArray, string> puncher)
+            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<BitArray, int>>>> punchedCardsCollection,
+            IPuncher<string, BitArray, BitArray> puncher)
         {
             var correctRecognitionsPerLabel = new ConcurrentDictionary<string, int>();
 
@@ -37,9 +37,9 @@ namespace PunchedCards.Helpers
         }
 
         internal static IDictionary<string, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
-            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsCollection,
+            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<BitArray, int>>>> punchedCardsCollection,
             BitArray input,
-            IPuncher<string, BitArray, string> puncher)
+            IPuncher<string, BitArray, BitArray> puncher)
         {
             var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<string, IDictionary<string, int>>();
 
@@ -59,7 +59,7 @@ namespace PunchedCards.Helpers
         private static void ProcessTheSpecificLabel(
             IDictionary<string, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
             string punchedCardKey, 
-            KeyValuePair<string, IReadOnlyCollection<Tuple<string, int>>> label, 
+            KeyValuePair<string, IReadOnlyCollection<Tuple<BitArray, int>>> label, 
             ICollection<int> inputOneIndices)
         {
             var punchedCardCorrectRecognitionsPerLabel = label.Value.Sum(punchedInput =>

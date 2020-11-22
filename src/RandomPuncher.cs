@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PunchedCards
 {
-    internal sealed class RandomPuncher: IPuncher<string, BitArray, string>
+    internal sealed class RandomPuncher : IPuncher<string, BitArray, BitArray>
     {
-        private const char NumberZeroCharacter = '0';
-        private const char NumberOneCharacter = '1';
         private const char KeySeparator = '-';
 
         private static readonly Random Random = new Random(42);
@@ -23,7 +22,7 @@ namespace PunchedCards
             _bitLength = bitLength;
         }
 
-        public IEnumerable<IPunchedCard<string, string>> GetInputPunches(BitArray input)
+        public IEnumerable<IPunchedCard<string, BitArray>> GetInputPunches(BitArray input)
         {
             if (_lastLength != input.Length)
             {
@@ -33,13 +32,13 @@ namespace PunchedCards
 
             for (var mapIndex = 0; mapIndex < _map.Length; mapIndex++)
             {
-                yield return new PunchedCard<string, string>(GetKey(_map[mapIndex]), GetInputPunch(input, _map[mapIndex]));
+                yield return new PunchedCard<string, BitArray>(GetKey(_map[mapIndex]), GetInputPunch(input, _map[mapIndex]));
             }
         }
 
-        public IPunchedCard<string, string> Punch(string key, BitArray input)
+        public IPunchedCard<string, BitArray> Punch(string key, BitArray input)
         {
-            return new PunchedCard<string, string>(key, GetInputPunch(input, GetIndices(key)));
+            return new PunchedCard<string, BitArray>(key, GetInputPunch(input, GetIndices(key).ToList()));
         }
 
         private static IEnumerable<int> GetIndices(string key)
@@ -67,15 +66,22 @@ namespace PunchedCards
             return keyStringBuilder.ToString(0, keyStringBuilder.Length - 1);
         }
 
-        private static string GetInputPunch(BitArray input, IEnumerable<int> indices)
+        private static BitArray GetInputPunch(BitArray input, IReadOnlyCollection<int> indices)
         {
-            var inputPunchStringBuilder = new StringBuilder();
+            var inputPunch = new BitArray(indices.Count);
+
+            var currentIndex = 0;
             foreach (var index in indices)
             {
-                inputPunchStringBuilder.Append(input[index] ? NumberOneCharacter : NumberZeroCharacter);
+                if (input[index])
+                {
+                    inputPunch[currentIndex] = true;
+                }
+
+                currentIndex++;
             }
 
-            return inputPunchStringBuilder.ToString();
+            return inputPunch;
         }
 
         private void ReinitializeMap(int length)
