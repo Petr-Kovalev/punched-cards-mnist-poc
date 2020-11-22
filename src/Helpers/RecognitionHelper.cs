@@ -8,23 +8,26 @@ namespace PunchedCards.Helpers
 {
     internal static class RecognitionHelper
     {
-        internal static IEnumerable<KeyValuePair<string, int>> CountCorrectRecognitions(
-            IEnumerable<Tuple<BitArray, string>> data,
-            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<BitArray, int>>>> punchedCardsCollection,
+        internal static IEnumerable<KeyValuePair<BitArray, int>> CountCorrectRecognitions(
+            IEnumerable<Tuple<BitArray, BitArray>> data,
+            IDictionary<string, IDictionary<BitArray, IReadOnlyCollection<Tuple<BitArray, int>>>>
+                punchedCardsCollection,
             IPuncher<string, BitArray, BitArray> puncher)
         {
-            var correctRecognitionsPerLabel = new ConcurrentDictionary<string, int>();
+            var correctRecognitionsPerLabel =
+                new ConcurrentDictionary<BitArray, int>(BitArrayEqualityComparer.Instance);
 
             data
                 .AsParallel()
                 .ForAll(dataItem =>
                 {
-                    var matchingScoresPerLabelPerPunchedCard = CountCorrectRecognitionsPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
+                    var matchingScoresPerLabelPerPunchedCard =
+                        CountCorrectRecognitionsPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
                     var topLabel = matchingScoresPerLabelPerPunchedCard
                         .OrderByDescending(s => s.Value.Sum(v => v.Value))
                         .First()
                         .Key;
-                    if (topLabel == dataItem.Item2)
+                    if (BitArrayEqualityComparer.Instance.Equals(topLabel, dataItem.Item2))
                     {
                         correctRecognitionsPerLabel.AddOrUpdate(
                             dataItem.Item2,
@@ -36,17 +39,17 @@ namespace PunchedCards.Helpers
             return correctRecognitionsPerLabel;
         }
 
-        internal static IDictionary<string, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
-            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<BitArray, int>>>> punchedCardsCollection,
+        internal static IDictionary<BitArray, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
+            IDictionary<string, IDictionary<BitArray, IReadOnlyCollection<Tuple<BitArray, int>>>> punchedCardsCollection,
             BitArray input,
             IPuncher<string, BitArray, BitArray> puncher)
         {
-            var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<string, IDictionary<string, int>>();
+            var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<BitArray, IDictionary<string, int>>(BitArrayEqualityComparer.Instance);
 
             foreach (var punchedCardsCollectionItem in punchedCardsCollection)
             {
                 var punchedInput = puncher.Punch(punchedCardsCollectionItem.Key, input).Input;
-                var inputOneIndices = BinaryStringsHelper.GetOneIndices(punchedInput).ToList();
+                var inputOneIndices = GetOneIndices(punchedInput).ToList();
                 foreach (var label in punchedCardsCollectionItem.Value)
                 {
                     ProcessTheSpecificLabel(correctRecognitionsPerLabelPerPunchedCard, punchedCardsCollectionItem.Key, label, inputOneIndices);
@@ -57,13 +60,13 @@ namespace PunchedCards.Helpers
         }
 
         private static void ProcessTheSpecificLabel(
-            IDictionary<string, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
-            string punchedCardKey, 
-            KeyValuePair<string, IReadOnlyCollection<Tuple<BitArray, int>>> label, 
+            IDictionary<BitArray, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
+            string punchedCardKey,
+            KeyValuePair<BitArray, IReadOnlyCollection<Tuple<BitArray, int>>> label,
             ICollection<int> inputOneIndices)
         {
-            var punchedCardCorrectRecognitionsPerLabel = label.Value.Sum(punchedInput =>
-                BinaryStringsHelper.CalculateMatchingScore(inputOneIndices, punchedInput));
+            var punchedCardCorrectRecognitionsPerLabel =
+                label.Value.Sum(punchedInput => CalculateMatchingScore(inputOneIndices, punchedInput));
 
             if (!correctRecognitionsPerLabelPerPunchedCard.TryGetValue(label.Key, out var dictionary))
             {
@@ -72,6 +75,22 @@ namespace PunchedCards.Helpers
             }
 
             dictionary.Add(punchedCardKey, punchedCardCorrectRecognitionsPerLabel);
+        }
+
+        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<BitArray, int> punchedInput)
+        {
+            return inputOneIndices.Count(inputOneIndex => punchedInput.Item1[inputOneIndex]) * punchedInput.Item2;
+        }
+
+        internal static IEnumerable<int> GetOneIndices(BitArray input)
+        {
+            for (var i = 0; i < input.Length; i++)
+            {
+                if (input[i])
+                {
+                    yield return i;
+                }
+            }
         }
     }
 }

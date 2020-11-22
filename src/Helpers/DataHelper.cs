@@ -10,22 +10,27 @@ namespace PunchedCards.Helpers
     {
         internal const int LabelsCount = 10;
 
-        internal static IEnumerable<Tuple<BitArray, string>> ReadTrainingData()
+        internal static IEnumerable<Tuple<BitArray, BitArray>> ReadTrainingData()
         {
             return ReaData(QmnistReader.ReadTrainingData);
         }
 
-        internal static IEnumerable<Tuple<BitArray, string>> ReadTestData()
+        internal static IEnumerable<Tuple<BitArray, BitArray>> ReadTestData()
         {
             return ReaData(QmnistReader.ReadTestData);
         }
 
-        private static IEnumerable<Tuple<BitArray, string>> ReaData(Func<IEnumerable<Image>> readImagesFunction)
+        private static IEnumerable<Tuple<BitArray, BitArray>> ReaData(Func<IEnumerable<Image>> readImagesFunction)
         {
             return readImagesFunction()
-                .Select(image => new Tuple<BitArray, string>(
+                .Select(image => new Tuple<BitArray, BitArray>(
                     GetValueBitArray(image.Data),
-                    BinaryStringsHelper.GetLabelString(image.Label, LabelsCount)));
+                    GetLabelBitArray(image.Label)));
+        }
+
+        internal static BitArray GetLabelBitArray(byte label)
+        {
+            return new BitArray(ByteToBooleanEnumerable(label).Skip(4).ToArray());
         }
 
         private static BitArray GetValueBitArray(byte[,] imageData)
@@ -34,7 +39,7 @@ namespace PunchedCards.Helpers
             const byte width = 28;
             const int pixelRepresentationSizeInBits = 8;
 
-            var result = new BitArray(height * width * pixelRepresentationSizeInBits);
+            var valueBitArray = new BitArray(height * width * pixelRepresentationSizeInBits);
 
             for (byte rowIndex = 0; rowIndex < height; rowIndex++)
             {
@@ -43,11 +48,11 @@ namespace PunchedCards.Helpers
                     var startIndex = (rowIndex * width + columnIndex) * pixelRepresentationSizeInBits;
 
                     byte bitIndex = 0;
-                    foreach (var bit in GetPixelRepresentationInBits(imageData[rowIndex, columnIndex]))
+                    foreach (var bit in ByteToBooleanEnumerable(imageData[rowIndex, columnIndex]))
                     {
                         if (bit)
                         {
-                            result[startIndex + bitIndex] = true;
+                            valueBitArray[startIndex + bitIndex] = true;
                         }
 
                         bitIndex++;
@@ -55,10 +60,10 @@ namespace PunchedCards.Helpers
                 }
             }
 
-            return result;
+            return valueBitArray;
         }
 
-        private static IEnumerable<bool> GetPixelRepresentationInBits(byte b)
+        private static IEnumerable<bool> ByteToBooleanEnumerable(byte b)
         {
             yield return (b & 128) != 0;
             yield return (b & 64) != 0;
