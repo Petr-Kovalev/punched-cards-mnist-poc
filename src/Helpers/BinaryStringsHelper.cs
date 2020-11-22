@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PunchedCards.Helpers
 {
@@ -12,9 +11,8 @@ namespace PunchedCards.Helpers
 
         internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<string, int> punchedInput)
         {
-            return inputOneIndices
-                       .Count(inputOneIndex => punchedInput.Item1[inputOneIndex] == NumberOneCharacter)
-                   * punchedInput.Item2;
+            return inputOneIndices.Count(inputOneIndex => punchedInput.Item1[inputOneIndex] == NumberOneCharacter) *
+                   punchedInput.Item2;
         }
 
         internal static IEnumerable<int> GetOneIndices(string input)
@@ -39,24 +37,6 @@ namespace PunchedCards.Helpers
             //    characterArray[i] = i == label ? NumberOneCharacter : NumberZeroCharacter;
             //}
             //return new string(characterArray);
-        }
-
-        internal static string GetValueString(byte[,] imageData)
-        {
-            const byte width = 28;
-            const byte height = 28;
-            const int bitSize = 8;
-
-            var valueStringBuilder = new StringBuilder();
-            for (byte i = 0; i < width; i++)
-            {
-                for (byte j = 0; j < height; j++)
-                {
-                    valueStringBuilder.Append(ByteToBinaryString(imageData[i, j], bitSize));
-                }
-            }
-
-            return valueStringBuilder.ToString();
         }
 
         private static string ByteToBinaryString(byte value, int bitSize)

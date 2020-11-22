@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using PunchedCards.Helpers;
@@ -34,7 +35,7 @@ namespace PunchedCards
             Console.ReadLine();
         }
 
-        private static void WriteTrainingAndTestResults(IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> topPunchedCardsPerLabel, List<Tuple<string, string>> trainingData, List<Tuple<string, string>> testData,
+        private static void WriteTrainingAndTestResults(IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> topPunchedCardsPerLabel, List<Tuple<BitArray, string>> trainingData, List<Tuple<BitArray, string>> testData,
             RandomPuncher puncher)
         {
             Console.WriteLine("Unique input combinations per punched card (descending): " +
@@ -128,8 +129,8 @@ namespace PunchedCards
 
         private static IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>>
             GetPunchedCardsPerLabel(
-                IEnumerable<Tuple<string, string>> trainingData,
-                IPuncher<string, string, string> puncher)
+                IEnumerable<Tuple<BitArray, string>> trainingData,
+                IPuncher<string, BitArray, string> puncher)
         {
             return trainingData
                 .SelectMany(trainingDataItem =>

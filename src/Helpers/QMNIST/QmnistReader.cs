@@ -29,24 +29,24 @@ namespace PunchedCards.Helpers.QMNIST
             using var imagesFileStream = File.OpenRead(imagesPath);
             using var imagesReader = new BinaryReader(imagesFileStream);
 
-            int magicNumber = imagesReader.ReadBigInt32();
-            int numberOfImages = imagesReader.ReadBigInt32();
-            int width = imagesReader.ReadBigInt32();
-            int height = imagesReader.ReadBigInt32();
+            var magicNumber = imagesReader.ReadBigInt32();
+            var numberOfImages = imagesReader.ReadBigInt32();
+            var width = imagesReader.ReadBigInt32();
+            var height = imagesReader.ReadBigInt32();
 
-            int magicLabel = labelsReader.ReadBigInt32();
-            int numberOfLabels = labelsReader.ReadBigInt32();
-            int labelsColumnCount = labelsReader.ReadBigInt32();
+            var magicLabel = labelsReader.ReadBigInt32();
+            var numberOfLabels = labelsReader.ReadBigInt32();
+            var labelsColumnCount = labelsReader.ReadBigInt32();
 
-            for (int imageIndex = 0; imageIndex < numberOfImages; imageIndex++)
+            for (var imageIndex = 0; imageIndex < numberOfImages; imageIndex++)
             {
-                var bytes = imagesReader.ReadBytes(width * height);
+                var bytes = imagesReader.ReadBytes(height * width);
                 var data = new byte[height, width];
-                for (int i = 0; i < width; i++)
+                for (var rowIndex = 0; rowIndex < height; rowIndex++)
                 {
-                    for (int j = 0; j < height; j++)
+                    for (var columnIndex = 0; columnIndex < width; columnIndex++)
                     {
-                        data[i, j] = bytes[i * height + j];
+                        data[rowIndex, columnIndex] = bytes[rowIndex * width + columnIndex];
                     }
                 }
 

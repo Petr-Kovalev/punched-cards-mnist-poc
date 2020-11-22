@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace PunchedCards
 {
-    internal sealed class RandomPuncher: IPuncher<string, string, string>
+    internal sealed class RandomPuncher: IPuncher<string, BitArray, string>
     {
+        private const char NumberZeroCharacter = '0';
+        private const char NumberOneCharacter = '1';
         private const char KeySeparator = '-';
 
         private static readonly Random Random = new Random(42);
@@ -20,7 +23,7 @@ namespace PunchedCards
             _bitLength = bitLength;
         }
 
-        public IEnumerable<IPunchedCard<string, string>> GetInputPunches(string input)
+        public IEnumerable<IPunchedCard<string, string>> GetInputPunches(BitArray input)
         {
             if (_lastLength != input.Length)
             {
@@ -34,7 +37,7 @@ namespace PunchedCards
             }
         }
 
-        public IPunchedCard<string, string> Punch(string key, string input)
+        public IPunchedCard<string, string> Punch(string key, BitArray input)
         {
             return new PunchedCard<string, string>(key, GetInputPunch(input, GetIndices(key)));
         }
@@ -64,12 +67,12 @@ namespace PunchedCards
             return keyStringBuilder.ToString(0, keyStringBuilder.Length - 1);
         }
 
-        private static string GetInputPunch(string input, IEnumerable<int> indices)
+        private static string GetInputPunch(BitArray input, IEnumerable<int> indices)
         {
             var inputPunchStringBuilder = new StringBuilder();
             foreach (var index in indices)
             {
-                inputPunchStringBuilder.Append(input[index]);
+                inputPunchStringBuilder.Append(input[index] ? NumberOneCharacter : NumberZeroCharacter);
             }
 
             return inputPunchStringBuilder.ToString();

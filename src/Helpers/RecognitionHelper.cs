@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,9 @@ namespace PunchedCards.Helpers
     internal static class RecognitionHelper
     {
         internal static IEnumerable<KeyValuePair<string, int>> CountCorrectRecognitions(
-            IEnumerable<Tuple<string, string>> data,
+            IEnumerable<Tuple<BitArray, string>> data,
             IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsCollection,
-            IPuncher<string, string, string> puncher)
+            IPuncher<string, BitArray, string> puncher)
         {
             var correctRecognitionsPerLabel = new ConcurrentDictionary<string, int>();
 
@@ -36,9 +37,9 @@ namespace PunchedCards.Helpers
         }
 
         internal static IDictionary<string, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
-            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsCollection, 
-            string input,
-            IPuncher<string, string, string> puncher)
+            IDictionary<string, IDictionary<string, IReadOnlyCollection<Tuple<string, int>>>> punchedCardsCollection,
+            BitArray input,
+            IPuncher<string, BitArray, string> puncher)
         {
             var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<string, IDictionary<string, int>>();
 
