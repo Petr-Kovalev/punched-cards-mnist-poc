@@ -39,7 +39,7 @@ namespace PunchedCards.Helpers
             const byte width = 28;
             const int pixelRepresentationSizeInBits = 8;
 
-            var valueBitArray = new BitArray(height * width * pixelRepresentationSizeInBits);
+            var booleanArray = new bool[height * width * pixelRepresentationSizeInBits];
 
             for (byte rowIndex = 0; rowIndex < height; rowIndex++)
             {
@@ -52,7 +52,7 @@ namespace PunchedCards.Helpers
                     {
                         if (bit)
                         {
-                            valueBitArray[startIndex + bitIndex] = true;
+                            booleanArray[startIndex + bitIndex] = true;
                         }
 
                         bitIndex++;
@@ -60,7 +60,7 @@ namespace PunchedCards.Helpers
                 }
             }
 
-            return valueBitArray;
+            return new BitArray(booleanArray);
         }
 
         private static IEnumerable<bool> ByteToBooleanEnumerable(byte b)

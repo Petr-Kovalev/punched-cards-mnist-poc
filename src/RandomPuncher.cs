@@ -68,20 +68,20 @@ namespace PunchedCards
 
         private static BitArray GetInputPunch(BitArray input, IReadOnlyCollection<int> indices)
         {
-            var inputPunch = new BitArray(indices.Count);
+            var booleanArray = new bool[indices.Count];
 
             var currentIndex = 0;
             foreach (var index in indices)
             {
                 if (input[index])
                 {
-                    inputPunch[currentIndex] = true;
+                    booleanArray[currentIndex] = true;
                 }
 
                 currentIndex++;
             }
 
-            return inputPunch;
+            return new BitArray(booleanArray);
         }
 
         private void ReinitializeMap(int length)
