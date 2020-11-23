@@ -14,7 +14,7 @@ namespace PunchedCards
 
         private readonly int _bitLength;
 
-        private int _lastLength = int.MinValue;
+        private int _lastCount = int.MinValue;
         private int[][] _map;
 
         internal RandomPuncher(int bitLength)
@@ -24,10 +24,10 @@ namespace PunchedCards
 
         public IEnumerable<IPunchedCard<string, BitArray>> GetInputPunches(BitArray input)
         {
-            if (_lastLength != input.Length)
+            if (_lastCount != input.Count)
             {
-                _lastLength = input.Length;
-                ReinitializeMap(input.Length);
+                _lastCount = input.Count;
+                ReinitializeMap(input.Count);
             }
 
             for (var mapIndex = 0; mapIndex < _map.Length; mapIndex++)

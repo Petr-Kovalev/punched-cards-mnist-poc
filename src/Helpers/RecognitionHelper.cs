@@ -84,7 +84,7 @@ namespace PunchedCards.Helpers
 
         internal static IEnumerable<int> GetOneIndices(BitArray input)
         {
-            for (var i = 0; i < input.Length; i++)
+            for (var i = 0; i < input.Count; i++)
             {
                 if (input[i])
                 {
