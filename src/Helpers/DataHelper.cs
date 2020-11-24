@@ -49,8 +49,6 @@ namespace PunchedCards.Helpers
             int width,
             int pixelRepresentationSizeInBits)
         {
-            var booleanArray = new bool[height * width * pixelRepresentationSizeInBits];
-
             for (byte rowIndex = 0; rowIndex < height; rowIndex++)
             {
                 for (byte columnIndex = 0; columnIndex < width; columnIndex++)
