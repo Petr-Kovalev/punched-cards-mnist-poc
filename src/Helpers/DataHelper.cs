@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using PunchedCards.Helpers.QMNIST;
@@ -10,35 +9,46 @@ namespace PunchedCards.Helpers
     {
         internal const int LabelsCount = 10;
 
-        internal static IEnumerable<Tuple<BitArray, BitArray>> ReadTrainingData()
+        internal static IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> ReadTrainingData()
         {
             return ReaData(QmnistReader.ReadTrainingData);
         }
 
-        internal static IEnumerable<Tuple<BitArray, BitArray>> ReadTestData()
+        internal static IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> ReadTestData()
         {
             return ReaData(QmnistReader.ReadTestData);
         }
 
-        private static IEnumerable<Tuple<BitArray, BitArray>> ReaData(Func<IEnumerable<Image>> readImagesFunction)
+        private static IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> ReaData(Func<IEnumerable<Image>> readImagesFunction)
         {
             return readImagesFunction()
-                .Select(image => new Tuple<BitArray, BitArray>(
+                .Select(image => new Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>(
                     GetValueBitArray(image.Data),
                     GetLabelBitArray(image.Label)));
         }
 
-        internal static BitArray GetLabelBitArray(byte label)
+        internal static IReadOnlyList<bool> GetLabelBitArray(byte label)
         {
-            return new BitArray(ByteToBooleanEnumerable(label).Skip(4).ToArray());
+            return new BoolReadOnlyList(ByteToBooleanEnumerable(label).Skip(4));
         }
 
-        private static BitArray GetValueBitArray(byte[,] imageData)
+        private static IReadOnlyList<bool> GetValueBitArray(byte[,] imageData)
         {
             const byte height = 28;
             const byte width = 28;
             const int pixelRepresentationSizeInBits = 8;
 
+            return new BoolReadOnlyList(
+                GetOneIndices(imageData, height, width, pixelRepresentationSizeInBits),
+                height * width * pixelRepresentationSizeInBits);
+        }
+
+        private static IEnumerable<int> GetOneIndices(
+            byte[,] imageData,
+            int height,
+            int width,
+            int pixelRepresentationSizeInBits)
+        {
             var booleanArray = new bool[height * width * pixelRepresentationSizeInBits];
 
             for (byte rowIndex = 0; rowIndex < height; rowIndex++)
@@ -52,15 +62,13 @@ namespace PunchedCards.Helpers
                     {
                         if (bit)
                         {
-                            booleanArray[startIndex + bitIndex] = true;
+                            yield return startIndex + bitIndex;
                         }
 
                         bitIndex++;
                     }
                 }
             }
-
-            return new BitArray(booleanArray);
         }
 
         private static IEnumerable<bool> ByteToBooleanEnumerable(byte b)

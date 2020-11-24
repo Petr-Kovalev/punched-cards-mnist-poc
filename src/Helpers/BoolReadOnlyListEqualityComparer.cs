@@ -1,19 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace PunchedCards.Helpers
 {
-    internal sealed class BitArrayEqualityComparer: IEqualityComparer<BitArray>
+    internal sealed class BoolReadOnlyListEqualityComparer : IEqualityComparer<IReadOnlyList<bool>>
     {
-        internal static IEqualityComparer<BitArray> Instance = new BitArrayEqualityComparer();
+        internal static IEqualityComparer<IReadOnlyList<bool>> Instance = new BoolReadOnlyListEqualityComparer();
 
-        private BitArrayEqualityComparer()
+        private BoolReadOnlyListEqualityComparer()
         {
         }
 
-        public bool Equals(BitArray x, BitArray y)
+        public bool Equals(IReadOnlyList<bool> x, IReadOnlyList<bool> y)
         {
-            if (x == null || 
+            if (x == null ||
                 y == null ||
                 x.Count != y.Count)
             {
@@ -31,15 +30,15 @@ namespace PunchedCards.Helpers
             return true;
         }
 
-        public int GetHashCode(BitArray obj)
+        public int GetHashCode(IReadOnlyList<bool> obj)
         {
             var hash = 17;
 
             unchecked
             {
-                for (var i = 0; i < obj.Count; i++)
+                foreach (var bit in obj)
                 {
-                    hash = hash * 23 + obj[i].GetHashCode();
+                    hash = hash * 23 + bit.GetHashCode();
                 }
             }
 

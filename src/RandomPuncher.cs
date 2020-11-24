@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace PunchedCards
 {
-    internal sealed class RandomPuncher : IPuncher<string, BitArray, BitArray>
+    internal sealed class RandomPuncher : IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>>
     {
         private const char KeySeparator = '-';
 
@@ -22,7 +21,7 @@ namespace PunchedCards
             _bitLength = bitLength;
         }
 
-        public IEnumerable<IPunchedCard<string, BitArray>> GetInputPunches(BitArray input)
+        public IEnumerable<IPunchedCard<string, IReadOnlyList<bool>>> GetInputPunches(IReadOnlyList<bool> input)
         {
             if (_lastCount != input.Count)
             {
@@ -32,13 +31,13 @@ namespace PunchedCards
 
             for (var mapIndex = 0; mapIndex < _map.Length; mapIndex++)
             {
-                yield return new PunchedCard<string, BitArray>(GetKey(_map[mapIndex]), GetInputPunch(input, _map[mapIndex]));
+                yield return new PunchedCard<string, IReadOnlyList<bool>>(GetKey(_map[mapIndex]), GetInputPunch(input, _map[mapIndex]));
             }
         }
 
-        public IPunchedCard<string, BitArray> Punch(string key, BitArray input)
+        public IPunchedCard<string, IReadOnlyList<bool>> Punch(string key, IReadOnlyList<bool> input)
         {
-            return new PunchedCard<string, BitArray>(key, GetInputPunch(input, GetIndices(key).ToList()));
+            return new PunchedCard<string, IReadOnlyList<bool>>(key, GetInputPunch(input, GetIndices(key).ToList()));
         }
 
         private static IEnumerable<int> GetIndices(string key)
@@ -66,22 +65,24 @@ namespace PunchedCards
             return keyStringBuilder.ToString(0, keyStringBuilder.Length - 1);
         }
 
-        private static BitArray GetInputPunch(BitArray input, IReadOnlyCollection<int> indices)
+        private static IReadOnlyList<bool> GetInputPunch(IReadOnlyList<bool> input, IReadOnlyCollection<int> indices)
         {
-            var booleanArray = new bool[indices.Count];
+            return new BoolReadOnlyList(GetOneIndices(input, indices), indices.Count);
+        }
 
+        private static IEnumerable<int> GetOneIndices(IReadOnlyList<bool> input, IEnumerable<int> indices)
+        {
             var currentIndex = 0;
+
             foreach (var index in indices)
             {
                 if (input[index])
                 {
-                    booleanArray[currentIndex] = true;
+                    yield return currentIndex;
                 }
 
                 currentIndex++;
             }
-
-            return new BitArray(booleanArray);
         }
 
         private void ReinitializeMap(int length)
