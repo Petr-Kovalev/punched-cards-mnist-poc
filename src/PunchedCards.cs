@@ -18,15 +18,15 @@ namespace PunchedCards
                 Console.WriteLine("Punched card bit length: " + punchedCardBitLength);
 
                 var puncher = new RandomPuncher(punchedCardBitLength);
-                var punchedCardsPerLabel = GetPunchedCardsPerLabel(trainingData, puncher);
+                var punchedCardsPerKeyPerLabel = GetPunchedCardsPerKeyPerLabel(trainingData, puncher);
 
                 Console.WriteLine();
                 Console.WriteLine("Global top punched card:");
-                WriteTrainingAndTestResults(GetGlobalTopPunchedCard(punchedCardsPerLabel), trainingData, testData, puncher);
+                WriteTrainingAndTestResults(GetGlobalTopPunchedCard(punchedCardsPerKeyPerLabel), trainingData, testData, puncher);
                 Console.WriteLine();
 
                 Console.WriteLine("Top punched cards per label:");
-                WriteTrainingAndTestResults(GetTopPunchedCardsPerLabel(punchedCardsPerLabel, 1), trainingData, testData, puncher);
+                WriteTrainingAndTestResults(GetTopPunchedCardsPerLabel(punchedCardsPerKeyPerLabel, 1), trainingData, testData, puncher);
                 Console.WriteLine();
             }
 
@@ -86,11 +86,11 @@ namespace PunchedCards
         }
 
         private static IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> GetGlobalTopPunchedCard(
-            IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsPerLabel)
+            IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsPerKeyPerLabel)
         {
-            var globalTopPunchedCard = punchedCardsPerLabel
-                .OrderByDescending(punchedCardPerLabel =>
-                    punchedCardPerLabel
+            var globalTopPunchedCard = punchedCardsPerKeyPerLabel
+                .OrderByDescending(punchedCardPerKeyPerLabel =>
+                    punchedCardPerKeyPerLabel
                         .Value
                         .Sum(labelAndInputs => labelAndInputs.Value.Count))
                 .First();
@@ -100,65 +100,77 @@ namespace PunchedCards
 
         private static IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
             GetTopPunchedCardsPerLabel(
-                IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsPerLabel,
-                int topPunchedCardsPerLabelCount)
+                IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsPerKeyPerLabel,
+                int topPunchedCardsPerKeyPerLabelCount)
         {
-            var topPunchedCardsPerLabel =
+            var topPunchedCardsPerKeyPerLabel =
                 new Dictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>();
 
             for (byte i = 0; i < DataHelper.LabelsCount; i++)
             {
                 var label = DataHelper.GetLabelBitArray(i);
 
-                var topPunchedCardsPerSpecificLabel = punchedCardsPerLabel
+                var topPunchedCardsPerSpecificLabel = punchedCardsPerKeyPerLabel
                     .OrderByDescending(punchedCardPerLabel => punchedCardPerLabel.Value[label].Count)
-                    .Take(topPunchedCardsPerLabelCount);
+                    .Take(topPunchedCardsPerKeyPerLabelCount);
 
                 foreach (var topPunchedCardPerSpecificLabel in topPunchedCardsPerSpecificLabel)
                 {
-                    if (!topPunchedCardsPerLabel.TryGetValue(topPunchedCardPerSpecificLabel.Key, out var dictionary))
+                    if (!topPunchedCardsPerKeyPerLabel.TryGetValue(topPunchedCardPerSpecificLabel.Key, out var dictionary))
                     {
                         dictionary = new Dictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>(BoolReadOnlyListEqualityComparer.Instance);
-                        topPunchedCardsPerLabel.Add(topPunchedCardPerSpecificLabel.Key, dictionary);
+                        topPunchedCardsPerKeyPerLabel.Add(topPunchedCardPerSpecificLabel.Key, dictionary);
                     }
 
                     dictionary.Add(label, topPunchedCardPerSpecificLabel.Value[label]);
                 }
             }
 
-            return topPunchedCardsPerLabel;
+            return topPunchedCardsPerKeyPerLabel;
         }
 
         private static IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
-            GetPunchedCardsPerLabel(
-                IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> trainingData,
+            GetPunchedCardsPerKeyPerLabel(
+                IList<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> trainingData,
                 IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>> puncher)
         {
-            return trainingData
-                .SelectMany(trainingDataItem =>
-                    puncher.GetInputPunches(trainingDataItem.Item1).Select(inputPunch =>
-                        new Tuple<IPunchedCard<string, IReadOnlyList<bool>>, IReadOnlyList<bool>>(inputPunch, trainingDataItem.Item2)))
-                .GroupBy(punchedCardAndLabel => punchedCardAndLabel.Item1.Key)
+            var count = trainingData[0].Item1.Count;
+
+            return puncher
+                .GetKeys(count)
                 .ToDictionary(
-                    punchedCardByKeyGrouping => punchedCardByKeyGrouping.Key,
-                    punchedCardByKeyGrouping =>
-                        (IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>) punchedCardByKeyGrouping
-                            .GroupBy(punchedCardAndLabel => punchedCardAndLabel.Item2,
-                                BoolReadOnlyListEqualityComparer.Instance)
-                            .ToDictionary(
-                                punchedCardByLabelGrouping => punchedCardByLabelGrouping.Key,
-                                punchedCardByLabelGrouping =>
-                                    (IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>) punchedCardByLabelGrouping
-                                        .Select(punchedCardAndLabel => punchedCardAndLabel.Item1.Input)
-                                        .GroupBy(punchedCardInput => punchedCardInput,
-                                            BoolReadOnlyListEqualityComparer.Instance)
-                                        .Select(punchedCardInputsGrouping =>
-                                            new Tuple<IReadOnlyList<bool>, int>(
-                                                punchedCardInputsGrouping.Key,
-                                                punchedCardInputsGrouping.Count()))
-                                        .OrderByDescending(uniqueInputAndCount => uniqueInputAndCount.Item2)
-                                        .ToList(),
-                                BoolReadOnlyListEqualityComparer.Instance));
+                    key => key,
+                    key => GetPunchedCardsPerLabel(trainingData
+                        .Select(trainingDataItem =>
+                            new Tuple<IPunchedCard<string, IReadOnlyList<bool>>, IReadOnlyList<bool>>(
+                                puncher.Punch(key, trainingDataItem.Item1), trainingDataItem.Item2))));
+        }
+
+        private static IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>> GetPunchedCardsPerLabel(
+            IEnumerable<Tuple<IPunchedCard<string, IReadOnlyList<bool>>, IReadOnlyList<bool>>> punchedCardInputsByKeyGrouping)
+        {
+            return punchedCardInputsByKeyGrouping
+                .GroupBy(punchedCardAndLabel => punchedCardAndLabel.Item2,
+                    BoolReadOnlyListEqualityComparer.Instance)
+                .ToDictionary(
+                    punchedCardByLabelGrouping => punchedCardByLabelGrouping.Key,
+                    punchedCardByLabelGrouping =>
+                        GetUniquePunchedCardInputs(punchedCardByLabelGrouping
+                            .Select(punchedCardAndLabel => punchedCardAndLabel.Item1.Input)),
+                    BoolReadOnlyListEqualityComparer.Instance);
+        }
+
+        private static IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>> GetUniquePunchedCardInputs(IEnumerable<IReadOnlyList<bool>> punchedCardInputs)
+        {
+            return punchedCardInputs
+                .GroupBy(punchedCardInput => punchedCardInput,
+                    BoolReadOnlyListEqualityComparer.Instance)
+                .Select(punchedCardInputsGrouping =>
+                    new Tuple<IReadOnlyList<bool>, int>(
+                        punchedCardInputsGrouping.Key,
+                        punchedCardInputsGrouping.Count()))
+                .OrderByDescending(uniqueInputAndCount => uniqueInputAndCount.Item2)
+                .ToList();
         }
     }
 }

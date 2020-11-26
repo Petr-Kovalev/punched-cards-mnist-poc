@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PunchedCards
 {
     internal sealed class RandomPuncher : IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>>
     {
-        private const char KeySeparator = '-';
-
         private static readonly Random Random = new Random(42);
 
         private readonly int _bitLength;
@@ -21,48 +18,20 @@ namespace PunchedCards
             _bitLength = bitLength;
         }
 
-        public IEnumerable<IPunchedCard<string, IReadOnlyList<bool>>> GetInputPunches(IReadOnlyList<bool> input)
-        {
-            if (_lastCount != input.Count)
-            {
-                _lastCount = input.Count;
-                ReinitializeMap(input.Count);
-            }
-
-            for (var mapIndex = 0; mapIndex < _map.Length; mapIndex++)
-            {
-                yield return new PunchedCard<string, IReadOnlyList<bool>>(GetKey(_map[mapIndex]), GetInputPunch(input, _map[mapIndex]));
-            }
-        }
-
         public IPunchedCard<string, IReadOnlyList<bool>> Punch(string key, IReadOnlyList<bool> input)
         {
-            return new PunchedCard<string, IReadOnlyList<bool>>(key, GetInputPunch(input, GetIndices(key).ToList()));
+            return new PunchedCard<string, IReadOnlyList<bool>>(key, GetInputPunch(input, _map[int.Parse(key)]));
         }
 
-        private static IEnumerable<int> GetIndices(string key)
+        public IEnumerable<string> GetKeys(int count)
         {
-            var startPosition = 0;
-            int position;
-            while ((position = key.IndexOf(KeySeparator, startPosition)) > 0)
+            if (_lastCount != count)
             {
-                yield return int.Parse(key.Substring(startPosition, position - startPosition));
-                startPosition = position + 1;
+                _lastCount = count;
+                ReinitializeMap(count);
             }
 
-            yield return int.Parse(key.Substring(startPosition));
-        }
-
-        private static string GetKey(IEnumerable<int> indices)
-        {
-            var keyStringBuilder = new StringBuilder();
-            foreach (var index in indices)
-            {
-                keyStringBuilder.Append(index);
-                keyStringBuilder.Append(KeySeparator);
-            }
-
-            return keyStringBuilder.ToString(0, keyStringBuilder.Length - 1);
+            return Enumerable.Range(0, _map.Length).Select(index => index.ToString());
         }
 
         private static IReadOnlyList<bool> GetInputPunch(IReadOnlyList<bool> input, IReadOnlyCollection<int> indices)
