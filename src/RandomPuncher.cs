@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PunchedCards
 {
-    internal sealed class RandomPuncher : IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>>
+    internal sealed class RandomPuncher : IPuncher<string, IBitVector, IBitVector>
     {
         private static readonly Random Random = new Random(42);
 
@@ -18,9 +18,9 @@ namespace PunchedCards
             _bitLength = bitLength;
         }
 
-        public IPunchedCard<string, IReadOnlyList<bool>> Punch(string key, IReadOnlyList<bool> input)
+        public IPunchedCard<string, IBitVector> Punch(string key, IBitVector input)
         {
-            return new PunchedCard<string, IReadOnlyList<bool>>(key, GetInputPunch(input, _map[int.Parse(key)]));
+            return new PunchedCard<string, IBitVector>(key, GetInputPunch(input, _map[int.Parse(key)]));
         }
 
         public IEnumerable<string> GetKeys(int count)
@@ -34,12 +34,12 @@ namespace PunchedCards
             return Enumerable.Range(0, _map.Length).Select(index => index.ToString());
         }
 
-        private static IReadOnlyList<bool> GetInputPunch(IReadOnlyList<bool> input, IReadOnlyCollection<int> indices)
+        private static IBitVector GetInputPunch(IBitVector input, IReadOnlyCollection<int> indices)
         {
-            return new BoolReadOnlyList(GetOneIndices(input, indices), indices.Count);
+            return new BitVector(GetOneIndices(input, indices), indices.Count);
         }
 
-        private static IEnumerable<int> GetOneIndices(IReadOnlyList<bool> input, IEnumerable<int> indices)
+        private static IEnumerable<int> GetOneIndices(IBitVector input, IEnumerable<int> indices)
         {
             var currentIndex = 0;
 

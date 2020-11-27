@@ -9,36 +9,36 @@ namespace PunchedCards.Helpers
     {
         internal const int LabelsCount = 10;
 
-        internal static IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> ReadTrainingData()
+        internal static IEnumerable<Tuple<IBitVector, IBitVector>> ReadTrainingData()
         {
             return ReaData(QmnistReader.ReadTrainingData);
         }
 
-        internal static IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> ReadTestData()
+        internal static IEnumerable<Tuple<IBitVector, IBitVector>> ReadTestData()
         {
             return ReaData(QmnistReader.ReadTestData);
         }
 
-        private static IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> ReaData(Func<IEnumerable<Image>> readImagesFunction)
+        private static IEnumerable<Tuple<IBitVector, IBitVector>> ReaData(Func<IEnumerable<Image>> readImagesFunction)
         {
             return readImagesFunction()
-                .Select(image => new Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>(
+                .Select(image => new Tuple<IBitVector, IBitVector>(
                     GetValueBitArray(image.Data),
                     GetLabelBitArray(image.Label)));
         }
 
-        internal static IReadOnlyList<bool> GetLabelBitArray(byte label)
+        internal static IBitVector GetLabelBitArray(byte label)
         {
-            return new BoolReadOnlyList(ByteToBooleanEnumerable(label).Skip(4));
+            return new BitVector(ByteToBooleanEnumerable(label).Skip(4));
         }
 
-        private static IReadOnlyList<bool> GetValueBitArray(byte[,] imageData)
+        private static IBitVector GetValueBitArray(byte[,] imageData)
         {
             const byte height = 28;
             const byte width = 28;
             const int pixelRepresentationSizeInBits = 8;
 
-            return new BoolReadOnlyList(
+            return new BitVector(
                 GetOneIndices(imageData, height, width, pixelRepresentationSizeInBits),
                 height * width * pixelRepresentationSizeInBits);
         }

@@ -35,9 +35,9 @@ namespace PunchedCards
         }
 
         private static void WriteTrainingAndTestResults(
-            IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> topPunchedCardsPerLabel,
-            List<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> trainingData,
-            List<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> testData,
+            IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> topPunchedCardsPerLabel,
+            List<Tuple<IBitVector, IBitVector>> trainingData,
+            List<Tuple<IBitVector, IBitVector>> testData,
             RandomPuncher puncher)
         {
             Console.WriteLine("Unique input combinations per punched card (descending): " +
@@ -59,7 +59,7 @@ namespace PunchedCards
         }
 
         private static string GetPunchedCardsPerLabelString(
-            IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsPerLabel)
+            IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> punchedCardsPerLabel)
         {
             var punchedCardsPerLabelUniqueLookupCounts = punchedCardsPerLabel
                 .Select(punchedCardPerLabel =>
@@ -85,8 +85,8 @@ namespace PunchedCards
                 : valuesString + ": sum " + uniqueLookupCounts.Item2;
         }
 
-        private static IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> GetGlobalTopPunchedCard(
-            IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsPerKeyPerLabel)
+        private static IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> GetGlobalTopPunchedCard(
+            IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> punchedCardsPerKeyPerLabel)
         {
             var globalTopPunchedCard = punchedCardsPerKeyPerLabel
                 .OrderByDescending(punchedCardPerKeyPerLabel =>
@@ -94,17 +94,17 @@ namespace PunchedCards
                         .Value
                         .Sum(labelAndInputs => labelAndInputs.Value.Count))
                 .First();
-            return new Dictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
+            return new Dictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
                 {{globalTopPunchedCard.Key, globalTopPunchedCard.Value}};
         }
 
-        private static IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
+        private static IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
             GetTopPunchedCardsPerLabel(
-                IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsPerKeyPerLabel,
+                IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> punchedCardsPerKeyPerLabel,
                 int topPunchedCardsPerKeyPerLabelCount)
         {
             var topPunchedCardsPerKeyPerLabel =
-                new Dictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>();
+                new Dictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>();
 
             for (byte i = 0; i < DataHelper.LabelsCount; i++)
             {
@@ -118,7 +118,7 @@ namespace PunchedCards
                 {
                     if (!topPunchedCardsPerKeyPerLabel.TryGetValue(topPunchedCardPerSpecificLabel.Key, out var dictionary))
                     {
-                        dictionary = new Dictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>(BoolReadOnlyListEqualityComparer.Instance);
+                        dictionary = new Dictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>();
                         topPunchedCardsPerKeyPerLabel.Add(topPunchedCardPerSpecificLabel.Key, dictionary);
                     }
 
@@ -130,16 +130,16 @@ namespace PunchedCards
         }
 
         private static IDictionary<string,
-                IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
+                IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
             GetPunchedCardsPerKeyPerLabel(
-                IList<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> trainingData,
-                IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>> puncher)
+                IList<Tuple<IBitVector, IBitVector>> trainingData,
+                IPuncher<string, IBitVector, IBitVector> puncher)
         {
             var count = trainingData[0].Item1.Count;
 
             var punchedCardsPerKeyPerLabel = new Dictionary<
                 string,
-                IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>();
+                IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>();
             puncher
                 .GetKeys(count)
                 .AsParallel()
@@ -147,33 +147,30 @@ namespace PunchedCards
                 {
                     punchedCardsPerKeyPerLabel.Add(key,
                         GetPunchedCardsPerLabel(trainingData.Select(trainingDataItem =>
-                            new Tuple<IPunchedCard<string, IReadOnlyList<bool>>, IReadOnlyList<bool>>(
+                            new Tuple<IPunchedCard<string, IBitVector>, IBitVector>(
                                 puncher.Punch(key, trainingDataItem.Item1), trainingDataItem.Item2))));
                 });
             return punchedCardsPerKeyPerLabel;
         }
 
-        private static IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>> GetPunchedCardsPerLabel(
-            IEnumerable<Tuple<IPunchedCard<string, IReadOnlyList<bool>>, IReadOnlyList<bool>>> punchedCardInputsByKeyGrouping)
+        private static IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>> GetPunchedCardsPerLabel(
+            IEnumerable<Tuple<IPunchedCard<string, IBitVector>, IBitVector>> punchedCardInputsByKeyGrouping)
         {
             return punchedCardInputsByKeyGrouping
-                .GroupBy(punchedCardAndLabel => punchedCardAndLabel.Item2,
-                    BoolReadOnlyListEqualityComparer.Instance)
+                .GroupBy(punchedCardAndLabel => punchedCardAndLabel.Item2)
                 .ToDictionary(
                     punchedCardByLabelGrouping => punchedCardByLabelGrouping.Key,
                     punchedCardByLabelGrouping =>
                         GetUniquePunchedCardInputs(punchedCardByLabelGrouping
-                            .Select(punchedCardAndLabel => punchedCardAndLabel.Item1.Input)),
-                    BoolReadOnlyListEqualityComparer.Instance);
+                            .Select(punchedCardAndLabel => punchedCardAndLabel.Item1.Input)));
         }
 
-        private static IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>> GetUniquePunchedCardInputs(IEnumerable<IReadOnlyList<bool>> punchedCardInputs)
+        private static IReadOnlyCollection<Tuple<IBitVector, int>> GetUniquePunchedCardInputs(IEnumerable<IBitVector> punchedCardInputs)
         {
             return punchedCardInputs
-                .GroupBy(punchedCardInput => punchedCardInput,
-                    BoolReadOnlyListEqualityComparer.Instance)
+                .GroupBy(punchedCardInput => punchedCardInput)
                 .Select(punchedCardInputsGrouping =>
-                    new Tuple<IReadOnlyList<bool>, int>(
+                    new Tuple<IBitVector, int>(
                         punchedCardInputsGrouping.Key,
                         punchedCardInputsGrouping.Count()))
                 .OrderByDescending(uniqueInputAndCount => uniqueInputAndCount.Item2)

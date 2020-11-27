@@ -7,14 +7,14 @@ namespace PunchedCards.Helpers
 {
     internal static class RecognitionHelper
     {
-        internal static IEnumerable<KeyValuePair<IReadOnlyList<bool>, int>> CountCorrectRecognitions(
-            IEnumerable<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> data,
-            IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
+        internal static IEnumerable<KeyValuePair<IBitVector, int>> CountCorrectRecognitions(
+            IEnumerable<Tuple<IBitVector, IBitVector>> data,
+            IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
                 punchedCardsCollection,
-            IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>> puncher)
+            IPuncher<string, IBitVector, IBitVector> puncher)
         {
             var correctRecognitionsPerLabel =
-                new ConcurrentDictionary<IReadOnlyList<bool>, int>(BoolReadOnlyListEqualityComparer.Instance);
+                new ConcurrentDictionary<IBitVector, int>();
 
             data
                 .AsParallel()
@@ -26,7 +26,7 @@ namespace PunchedCards.Helpers
                         .OrderByDescending(s => s.Value.Sum(v => v.Value))
                         .First()
                         .Key;
-                    if (BoolReadOnlyListEqualityComparer.Instance.Equals(topLabel, dataItem.Item2))
+                    if (topLabel.Equals(dataItem.Item2))
                     {
                         correctRecognitionsPerLabel.AddOrUpdate(
                             dataItem.Item2,
@@ -38,12 +38,12 @@ namespace PunchedCards.Helpers
             return correctRecognitionsPerLabel;
         }
 
-        internal static IDictionary<IReadOnlyList<bool>, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
-            IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>> punchedCardsCollection,
-            IReadOnlyList<bool> input,
-            IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>> puncher)
+        internal static IDictionary<IBitVector, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
+            IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> punchedCardsCollection,
+            IBitVector input,
+            IPuncher<string, IBitVector, IBitVector> puncher)
         {
-            var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<IReadOnlyList<bool>, IDictionary<string, int>>(BoolReadOnlyListEqualityComparer.Instance);
+            var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<IBitVector, IDictionary<string, int>>();
 
             foreach (var punchedCardsCollectionItem in punchedCardsCollection)
             {
@@ -59,9 +59,9 @@ namespace PunchedCards.Helpers
         }
 
         private static void ProcessTheSpecificLabel(
-            IDictionary<IReadOnlyList<bool>, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
+            IDictionary<IBitVector, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
             string punchedCardKey,
-            KeyValuePair<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>> label,
+            KeyValuePair<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>> label,
             ICollection<int> inputOneIndices)
         {
             var punchedCardCorrectRecognitionsPerLabel =
@@ -76,12 +76,12 @@ namespace PunchedCards.Helpers
             dictionary.Add(punchedCardKey, punchedCardCorrectRecognitionsPerLabel);
         }
 
-        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<IReadOnlyList<bool>, int> punchedInput)
+        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<IBitVector, int> punchedInput)
         {
             return inputOneIndices.Count(inputOneIndex => punchedInput.Item1[inputOneIndex]) * punchedInput.Item2;
         }
 
-        internal static IEnumerable<int> GetOneIndices(IReadOnlyList<bool> input)
+        internal static IEnumerable<int> GetOneIndices(IBitVector input)
         {
             for (var i = 0; i < input.Count; i++)
             {
