@@ -129,21 +129,28 @@ namespace PunchedCards
             return topPunchedCardsPerKeyPerLabel;
         }
 
-        private static IDictionary<string, IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
+        private static IDictionary<string,
+                IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>
             GetPunchedCardsPerKeyPerLabel(
                 IList<Tuple<IReadOnlyList<bool>, IReadOnlyList<bool>>> trainingData,
                 IPuncher<string, IReadOnlyList<bool>, IReadOnlyList<bool>> puncher)
         {
             var count = trainingData[0].Item1.Count;
 
-            return puncher
+            var punchedCardsPerKeyPerLabel = new Dictionary<
+                string,
+                IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>>>();
+            puncher
                 .GetKeys(count)
-                .ToDictionary(
-                    key => key,
-                    key => GetPunchedCardsPerLabel(trainingData
-                        .Select(trainingDataItem =>
+                .AsParallel()
+                .ForAll(key =>
+                {
+                    punchedCardsPerKeyPerLabel.Add(key,
+                        GetPunchedCardsPerLabel(trainingData.Select(trainingDataItem =>
                             new Tuple<IPunchedCard<string, IReadOnlyList<bool>>, IReadOnlyList<bool>>(
                                 puncher.Punch(key, trainingDataItem.Item1), trainingDataItem.Item2))));
+                });
+            return punchedCardsPerKeyPerLabel;
         }
 
         private static IDictionary<IReadOnlyList<bool>, IReadOnlyCollection<Tuple<IReadOnlyList<bool>, int>>> GetPunchedCardsPerLabel(
