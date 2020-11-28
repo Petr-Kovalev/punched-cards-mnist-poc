@@ -20,7 +20,7 @@ namespace PunchedCards
 
         public IPunchedCard<string, IBitVector> Punch(string key, IBitVector input)
         {
-            return new PunchedCard<string, IBitVector>(key, GetInputPunch(input, _map[int.Parse(key)]));
+            return new PunchedCard<string, IBitVector>(key, input.Punch(_map[int.Parse(key)]));
         }
 
         public IEnumerable<string> GetKeys(int count)
@@ -32,26 +32,6 @@ namespace PunchedCards
             }
 
             return Enumerable.Range(0, _map.Length).Select(index => index.ToString());
-        }
-
-        private static IBitVector GetInputPunch(IBitVector input, IReadOnlyCollection<int> indices)
-        {
-            return new BitVector(GetOneIndices(input, indices), indices.Count);
-        }
-
-        private static IEnumerable<int> GetOneIndices(IBitVector input, IEnumerable<int> indices)
-        {
-            var currentIndex = 0;
-
-            foreach (var index in indices)
-            {
-                if (input[index])
-                {
-                    yield return currentIndex;
-                }
-
-                currentIndex++;
-            }
         }
 
         private void ReinitializeMap(int length)

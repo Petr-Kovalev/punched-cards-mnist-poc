@@ -1,11 +1,13 @@
-﻿namespace PunchedCards
+﻿using System.Collections.Generic;
+
+namespace PunchedCards
 {
     internal interface IBitVector
     {
-        int Count{ get; }
+        int Count { get; }
 
         int AndCardinality(IBitVector bitVector);
 
-        bool this [int index] { get; }
+        IBitVector Punch(IEnumerable<int> indices);
     }
 }

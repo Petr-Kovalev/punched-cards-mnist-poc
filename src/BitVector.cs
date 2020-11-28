@@ -21,18 +21,23 @@ namespace PunchedCards
 
         public int Count => _bitArray.Count;
 
-        public bool this[int index] => _bitArray[index];
+        public IBitVector Punch(IEnumerable<int> indices)
+        {
+            var indicesList = indices.ToList();
+            return new BitVector(GetTrueIndices(this, indicesList), indicesList.Count);
+        }
 
         public int AndCardinality(IBitVector bitVector)
         {
-            if (_bitArray.Count != bitVector.Count)
+            var bitArray = ((BitVector) bitVector)._bitArray;
+
+            if (_bitArray.Count != bitArray.Count)
             {
                 throw new Exception("Counts does not match!");
             }
 
-            var bitArray = ((BitVector) bitVector)._bitArray;
-
             var cardinality = 0;
+
             for (var i = 0; i < _bitArray.Count; i++)
             {
                 if (_bitArray[i] && bitArray[i])
@@ -76,6 +81,22 @@ namespace PunchedCards
             }
 
             return hash;
+        }
+
+        private static IEnumerable<int> GetTrueIndices(IBitVector input, IEnumerable<int> indices)
+        {
+            var currentIndex = 0;
+
+            var inputBitArray = ((BitVector) input)._bitArray;
+            foreach (var index in indices)
+            {
+                if (inputBitArray[index])
+                {
+                    yield return currentIndex;
+                }
+
+                currentIndex++;
+            }
         }
 
         private static bool[] GetBooleanArray(IEnumerable<int> indices, int count)
