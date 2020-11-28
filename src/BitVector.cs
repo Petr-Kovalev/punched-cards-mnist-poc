@@ -9,9 +9,19 @@ namespace PunchedCards
     {
         private readonly BitArray _bitArray;
 
+        private BitVector(BitArray bitArray)
+        {
+            _bitArray = bitArray;
+        }
+
         internal BitVector(IEnumerable<int> indices, int count)
         {
-            _bitArray = new BitArray(GetBooleanArray(indices, count));
+            _bitArray = new BitArray(count);
+
+            foreach (var index in indices)
+            {
+                _bitArray[index] = true;
+            }
         }
 
         internal BitVector(IEnumerable<bool> booleanEnumerable)
@@ -23,8 +33,7 @@ namespace PunchedCards
 
         public IBitVector Punch(IEnumerable<int> indices)
         {
-            var indicesList = indices.ToList();
-            return new BitVector(GetTrueIndices(this, indicesList), indicesList.Count);
+            return new BitVector(PunchBitArray(indices.ToList()));
         }
 
         public int AndCardinality(IBitVector bitVector)
@@ -83,29 +92,20 @@ namespace PunchedCards
             return hash;
         }
 
-        private static IEnumerable<int> GetTrueIndices(IBitVector input, IEnumerable<int> indices)
+        private BitArray PunchBitArray(IReadOnlyCollection<int> indices)
         {
+            var result = new BitArray(indices.Count);
+
             var currentIndex = 0;
 
-            var inputBitArray = ((BitVector) input)._bitArray;
             foreach (var index in indices)
             {
-                if (inputBitArray[index])
+                if (_bitArray[index])
                 {
-                    yield return currentIndex;
+                    result[currentIndex] = true;
                 }
 
                 currentIndex++;
-            }
-        }
-
-        private static bool[] GetBooleanArray(IEnumerable<int> indices, int count)
-        {
-            var result = new bool[count];
-
-            foreach (var index in indices)
-            {
-                result[index] = true;
             }
 
             return result;
