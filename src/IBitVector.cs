@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace PunchedCards
+﻿namespace PunchedCards
 {
-    internal interface IBitVector: IReadOnlyList<bool>
+    internal interface IBitVector
     {
+        int Count{ get; }
+
+        int AndCardinality(IBitVector bitVector);
+
+        bool this [int index] { get; }
     }
 }

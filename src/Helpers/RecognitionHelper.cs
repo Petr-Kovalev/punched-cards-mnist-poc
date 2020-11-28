@@ -38,20 +38,22 @@ namespace PunchedCards.Helpers
             return correctRecognitionsPerLabel;
         }
 
-        internal static IDictionary<IBitVector, IDictionary<string, int>> CountCorrectRecognitionsPerLabelPerPunchedCard(
-            IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> punchedCardsCollection,
-            IBitVector input,
-            IPuncher<string, IBitVector, IBitVector> puncher)
+        internal static IDictionary<IBitVector, IDictionary<string, int>>
+            CountCorrectRecognitionsPerLabelPerPunchedCard(
+                IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
+                    punchedCardsCollection,
+                IBitVector input,
+                IPuncher<string, IBitVector, IBitVector> puncher)
         {
             var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<IBitVector, IDictionary<string, int>>();
 
             foreach (var punchedCardsCollectionItem in punchedCardsCollection)
             {
                 var punchedInput = puncher.Punch(punchedCardsCollectionItem.Key, input).Input;
-                var inputOneIndices = GetOneIndices(punchedInput).ToList();
                 foreach (var label in punchedCardsCollectionItem.Value)
                 {
-                    ProcessTheSpecificLabel(correctRecognitionsPerLabelPerPunchedCard, punchedCardsCollectionItem.Key, label, inputOneIndices);
+                    ProcessTheSpecificLabel(correctRecognitionsPerLabelPerPunchedCard, punchedCardsCollectionItem.Key,
+                        label, punchedInput);
                 }
             }
 
@@ -62,10 +64,11 @@ namespace PunchedCards.Helpers
             IDictionary<IBitVector, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
             string punchedCardKey,
             KeyValuePair<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>> label,
-            ICollection<int> inputOneIndices)
+            IBitVector punchedInput)
         {
             var punchedCardCorrectRecognitionsPerLabel =
-                label.Value.Sum(punchedInput => CalculateMatchingScore(inputOneIndices, punchedInput));
+                label.Value.Sum(punchedLabelInput =>
+                    punchedInput.AndCardinality(punchedLabelInput.Item1) * punchedLabelInput.Item2);
 
             if (!correctRecognitionsPerLabelPerPunchedCard.TryGetValue(label.Key, out var dictionary))
             {
@@ -74,22 +77,6 @@ namespace PunchedCards.Helpers
             }
 
             dictionary.Add(punchedCardKey, punchedCardCorrectRecognitionsPerLabel);
-        }
-
-        internal static int CalculateMatchingScore(ICollection<int> inputOneIndices, Tuple<IBitVector, int> punchedInput)
-        {
-            return inputOneIndices.Count(inputOneIndex => punchedInput.Item1[inputOneIndex]) * punchedInput.Item2;
-        }
-
-        internal static IEnumerable<int> GetOneIndices(IBitVector input)
-        {
-            for (var i = 0; i < input.Count; i++)
-            {
-                if (input[i])
-                {
-                    yield return i;
-                }
-            }
         }
     }
 }

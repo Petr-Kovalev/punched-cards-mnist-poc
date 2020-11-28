@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,19 +19,30 @@ namespace PunchedCards
             _bitArray = new BitArray(booleanEnumerable.ToArray());
         }
 
-        public IEnumerator<bool> GetEnumerator()
-        {
-            return GetBooleanEnumerable().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
         public int Count => _bitArray.Count;
 
         public bool this[int index] => _bitArray[index];
+
+        public int AndCardinality(IBitVector bitVector)
+        {
+            if (_bitArray.Count != bitVector.Count)
+            {
+                throw new Exception("Counts does not match!");
+            }
+
+            var bitArray = ((BitVector) bitVector)._bitArray;
+
+            var cardinality = 0;
+            for (var i = 0; i < _bitArray.Count; i++)
+            {
+                if (_bitArray[i] && bitArray[i])
+                {
+                    cardinality++;
+                }
+            }
+
+            return cardinality;
+        }
 
         public override bool Equals(object obj)
         {
@@ -64,14 +76,6 @@ namespace PunchedCards
             }
 
             return hash;
-        }
-
-        private IEnumerable<bool> GetBooleanEnumerable()
-        {
-            for (var index = 0; index < _bitArray.Count; index++)
-            {
-                yield return _bitArray[index];
-            }
         }
 
         private static bool[] GetBooleanArray(IEnumerable<int> indices, int count)
