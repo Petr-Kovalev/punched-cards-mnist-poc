@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using PunchedCards.Helpers;
 
@@ -13,6 +14,15 @@ namespace PunchedCards
             var testData = DataHelper.ReadTestData().ToList();
 
             var punchedCardBitLengths = new[] {32, 64, 128, 256, 512, 1024, 2048, 4096};
+
+            const bool enableTimeLogging = false;
+
+            Stopwatch stopwatch;
+            if (enableTimeLogging)
+            {
+                stopwatch = Stopwatch.StartNew();
+            }
+
             foreach (var punchedCardBitLength in punchedCardBitLengths)
             {
                 Console.WriteLine("Punched card bit length: " + punchedCardBitLength);
@@ -20,13 +30,32 @@ namespace PunchedCards
                 var puncher = new RandomPuncher(punchedCardBitLength);
                 var punchedCardsPerKeyPerLabel = GetPunchedCardsPerKeyPerLabel(trainingData, puncher);
 
+                if (enableTimeLogging)
+                {
+                    Console.WriteLine($"Cards preparation time: {(int)stopwatch.Elapsed.TotalSeconds} seconds");
+                    stopwatch.Restart();
+                }
+
                 Console.WriteLine();
+
                 Console.WriteLine("Global top punched card:");
                 WriteTrainingAndTestResults(GetGlobalTopPunchedCard(punchedCardsPerKeyPerLabel), trainingData, testData, puncher);
+                if (enableTimeLogging)
+                {
+                    Console.WriteLine($"Calculation time: {(int)stopwatch.Elapsed.TotalSeconds} seconds");
+                    stopwatch.Restart();
+                }
+
                 Console.WriteLine();
 
                 Console.WriteLine("Top punched cards per label:");
                 WriteTrainingAndTestResults(GetTopPunchedCardsPerLabel(punchedCardsPerKeyPerLabel, 1), trainingData, testData, puncher);
+                if (enableTimeLogging)
+                {
+                    Console.WriteLine($"Calculation time: {(int)stopwatch.Elapsed.TotalSeconds} seconds");
+                    stopwatch.Restart();
+                }
+
                 Console.WriteLine();
             }
 
@@ -108,7 +137,7 @@ namespace PunchedCards
 
             for (byte i = 0; i < DataHelper.LabelsCount; i++)
             {
-                var label = DataHelper.GetLabelBitArray(i);
+                var label = DataHelper.GetLabelBitVector(i);
 
                 var topPunchedCardsPerSpecificLabel = punchedCardsPerKeyPerLabel
                     .OrderByDescending(punchedCardPerLabel => punchedCardPerLabel.Value[label].Count)

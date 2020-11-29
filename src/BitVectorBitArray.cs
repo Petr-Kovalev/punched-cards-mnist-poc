@@ -5,16 +5,16 @@ using System.Linq;
 
 namespace PunchedCards
 {
-    internal sealed class BitVector : IBitVector
+    internal sealed class BitVectorBitArray : IBitVector
     {
         private readonly BitArray _bitArray;
 
-        private BitVector(BitArray bitArray)
+        private BitVectorBitArray(BitArray bitArray)
         {
             _bitArray = bitArray;
         }
 
-        internal BitVector(IEnumerable<int> indices, int count)
+        internal BitVectorBitArray(IEnumerable<int> indices, int count)
         {
             _bitArray = new BitArray(count);
 
@@ -24,7 +24,7 @@ namespace PunchedCards
             }
         }
 
-        internal BitVector(IEnumerable<bool> booleanEnumerable)
+        internal BitVectorBitArray(IEnumerable<bool> booleanEnumerable)
         {
             _bitArray = new BitArray(booleanEnumerable.ToArray());
         }
@@ -33,12 +33,12 @@ namespace PunchedCards
 
         public IBitVector Punch(IEnumerable<int> indices)
         {
-            return new BitVector(PunchBitArray(indices.ToList()));
+            return new BitVectorBitArray(PunchBitArray(indices.ToList()));
         }
 
         public int AndCardinality(IBitVector bitVector)
         {
-            var bitArray = ((BitVector) bitVector)._bitArray;
+            var bitArray = ((BitVectorBitArray) bitVector)._bitArray;
 
             if (_bitArray.Count != bitArray.Count)
             {
@@ -60,7 +60,7 @@ namespace PunchedCards
 
         public override bool Equals(object obj)
         {
-            if (!(obj is BitVector other) ||
+            if (!(obj is BitVectorBitArray other) ||
                 _bitArray.Count != other._bitArray.Count)
             {
                 return false;

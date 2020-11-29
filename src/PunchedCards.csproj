@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CRoaring.NetStandard" Version="0.2.272" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="QMNIST\qmnist-test-images-idx3-ubyte">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

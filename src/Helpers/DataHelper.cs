@@ -9,6 +9,8 @@ namespace PunchedCards.Helpers
     {
         internal const int LabelsCount = 10;
 
+        private static readonly IBitVectorFactory BitVectorFactory = new BitVectorFactoryRoaringBitmap();
+
         internal static IEnumerable<Tuple<IBitVector, IBitVector>> ReadTrainingData()
         {
             return ReaData(QmnistReader.ReadTrainingData);
@@ -23,22 +25,24 @@ namespace PunchedCards.Helpers
         {
             return readImagesFunction()
                 .Select(image => new Tuple<IBitVector, IBitVector>(
-                    GetValueBitArray(image.Data),
-                    GetLabelBitArray(image.Label)));
+                    GetValueBitVector(image.Data),
+                    GetLabelBitVector(image.Label)));
         }
 
-        internal static IBitVector GetLabelBitArray(byte label)
+        internal static IBitVector GetLabelBitVector(byte label)
         {
-            return new BitVector(ByteToBooleanEnumerable(label).Skip(4));
+            return BitVectorFactory.Create(
+                GetBitIndices(label).Where(i => i >= 4).Select(i => i - 4),
+                4);
         }
 
-        private static IBitVector GetValueBitArray(byte[,] imageData)
+        private static IBitVector GetValueBitVector(byte[,] imageData)
         {
             const byte height = 28;
             const byte width = 28;
             const int pixelRepresentationSizeInBits = 8;
 
-            return new BitVector(
+            return BitVectorFactory.Create(
                 GetOneIndices(imageData, height, width, pixelRepresentationSizeInBits),
                 height * width * pixelRepresentationSizeInBits);
         }
@@ -54,31 +58,55 @@ namespace PunchedCards.Helpers
                 for (byte columnIndex = 0; columnIndex < width; columnIndex++)
                 {
                     var startIndex = (rowIndex * width + columnIndex) * pixelRepresentationSizeInBits;
-
-                    byte bitIndex = 0;
-                    foreach (var bit in ByteToBooleanEnumerable(imageData[rowIndex, columnIndex]))
+                    foreach (var bitIndex in GetBitIndices(imageData[rowIndex, columnIndex]))
                     {
-                        if (bit)
-                        {
-                            yield return startIndex + bitIndex;
-                        }
-
-                        bitIndex++;
+                        yield return startIndex + bitIndex;
                     }
                 }
             }
         }
 
-        private static IEnumerable<bool> ByteToBooleanEnumerable(byte b)
+        private static IEnumerable<int> GetBitIndices(byte b)
         {
-            yield return (b & 128) != 0;
-            yield return (b & 64) != 0;
-            yield return (b & 32) != 0;
-            yield return (b & 16) != 0;
-            yield return (b & 8) != 0;
-            yield return (b & 4) != 0;
-            yield return (b & 2) != 0;
-            yield return (b & 1) != 0;
+            if ((b & 128) != 0)
+            {
+                yield return 0;
+            }
+
+            if ((b & 64) != 0)
+            {
+                yield return 1;
+            }
+
+            if ((b & 32) != 0)
+            {
+                yield return 2;
+            }
+
+            if ((b & 16) != 0)
+            {
+                yield return 3;
+            }
+
+            if ((b & 8) != 0)
+            {
+                yield return 4;
+            }
+
+            if ((b & 4) != 0)
+            {
+                yield return 5;
+            }
+
+            if ((b & 2) != 0)
+            {
+                yield return 6;
+            }
+
+            if ((b & 1) != 0)
+            {
+                yield return 7;
+            }
         }
     }
 }
