@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using PunchedCards.BitVectors;
 using PunchedCards.Helpers;
 
 namespace PunchedCards

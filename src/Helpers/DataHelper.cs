@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PunchedCards.BitVectors;
 using PunchedCards.Helpers.QMNIST;
 
 namespace PunchedCards.Helpers
@@ -32,7 +33,7 @@ namespace PunchedCards.Helpers
         internal static IBitVector GetLabelBitVector(byte label)
         {
             return BitVectorFactory.Create(
-                GetBitIndices(label).Where(i => i >= 4).Select(i => i - 4),
+                GetActiveBitIndices(label).Where(i => i >= 4).Select(i => i - 4),
                 4);
         }
 
@@ -43,11 +44,11 @@ namespace PunchedCards.Helpers
             const int pixelRepresentationSizeInBits = 8;
 
             return BitVectorFactory.Create(
-                GetOneIndices(imageData, height, width, pixelRepresentationSizeInBits),
+                GetActiveBitIndices(imageData, height, width, pixelRepresentationSizeInBits),
                 height * width * pixelRepresentationSizeInBits);
         }
 
-        private static IEnumerable<int> GetOneIndices(
+        private static IEnumerable<int> GetActiveBitIndices(
             byte[,] imageData,
             int height,
             int width,
@@ -58,15 +59,15 @@ namespace PunchedCards.Helpers
                 for (byte columnIndex = 0; columnIndex < width; columnIndex++)
                 {
                     var startIndex = (rowIndex * width + columnIndex) * pixelRepresentationSizeInBits;
-                    foreach (var bitIndex in GetBitIndices(imageData[rowIndex, columnIndex]))
+                    foreach (var activeBitIndex in GetActiveBitIndices(imageData[rowIndex, columnIndex]))
                     {
-                        yield return startIndex + bitIndex;
+                        yield return startIndex + activeBitIndex;
                     }
                 }
             }
         }
 
-        private static IEnumerable<int> GetBitIndices(byte b)
+        private static IEnumerable<int> GetActiveBitIndices(byte b)
         {
             if ((b & 128) != 0)
             {

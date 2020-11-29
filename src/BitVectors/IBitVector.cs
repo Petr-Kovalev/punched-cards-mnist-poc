@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PunchedCards
+namespace PunchedCards.BitVectors
 {
     internal interface IBitVector
     {
