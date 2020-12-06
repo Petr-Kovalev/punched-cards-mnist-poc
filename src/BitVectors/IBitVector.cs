@@ -6,9 +6,7 @@ namespace PunchedCards.BitVectors
     {
         int Count { get; }
 
-        bool IsBitActive(int index);
-
-        int AndCardinality(IBitVector bitVector);
+        int HammingDistance(IBitVector bitVector);
 
         IBitVector Punch(IEnumerable<int> indices);
     }

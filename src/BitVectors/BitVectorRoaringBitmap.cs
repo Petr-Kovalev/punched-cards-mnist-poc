@@ -5,7 +5,7 @@ using CRoaring;
 
 namespace PunchedCards.BitVectors
 {
-    internal sealed class BitVectorRoaringBitmap : BitVector
+    internal sealed class BitVectorRoaringBitmap : IBitVector
     {
         private readonly RoaringBitmap _roaringBitmap;
 
@@ -19,27 +19,37 @@ namespace PunchedCards.BitVectors
             Count = count;
         }
 
-        public override int Count { get; }
+        public int Count { get; }
 
-        public override IBitVector Punch(IEnumerable<int> indices)
+        public IBitVector Punch(IEnumerable<int> indices)
         {
             var indicesList = indices.ToList();
-            return new BitVectorRoaringBitmap(PunchInternal(indicesList), indicesList.Count);
+            return new BitVectorRoaringBitmap(PunchBitIndices(indicesList), indicesList.Count);
         }
 
-        public override bool IsBitActive(int index)
+        private IEnumerable<int> PunchBitIndices(IEnumerable<int> indices)
         {
-            return _roaringBitmap.Contains((uint) index);
+            var currentIndex = 0;
+
+            foreach (var index in indices)
+            {
+                if (_roaringBitmap.Contains((uint) index))
+                {
+                    yield return currentIndex;
+                }
+
+                currentIndex++;
+            }
         }
 
-        public override int AndCardinality(IBitVector bitVector)
+        public int HammingDistance(IBitVector bitVector)
         {
             if (Count != bitVector.Count)
             {
                 throw new Exception("Counts does not match!");
             }
 
-            return (int) _roaringBitmap.AndCardinality(((BitVectorRoaringBitmap) bitVector)._roaringBitmap);
+            return (int) _roaringBitmap.XorCardinality(((BitVectorRoaringBitmap) bitVector)._roaringBitmap);
         }
 
         public override bool Equals(object obj)

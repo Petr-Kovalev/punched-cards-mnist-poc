@@ -24,7 +24,7 @@ namespace PunchedCards.Helpers
                     var matchingScoresPerLabelPerPunchedCard =
                         CountCorrectRecognitionsPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
                     var topLabel = matchingScoresPerLabelPerPunchedCard
-                        .OrderByDescending(s => s.Value.Sum(v => v.Value))
+                        .OrderBy(s => s.Value.Sum(v => v.Value))
                         .First()
                         .Key;
                     if (topLabel.Equals(dataItem.Item2))
@@ -69,7 +69,7 @@ namespace PunchedCards.Helpers
         {
             var punchedCardCorrectRecognitionsPerLabel =
                 label.Value.Sum(punchedLabelInput =>
-                    punchedInput.AndCardinality(punchedLabelInput.Item1) * punchedLabelInput.Item2);
+                    punchedInput.HammingDistance(punchedLabelInput.Item1) * punchedLabelInput.Item2);
 
             if (!correctRecognitionsPerLabelPerPunchedCard.TryGetValue(label.Key, out var dictionary))
             {
