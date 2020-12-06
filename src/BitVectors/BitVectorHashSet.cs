@@ -47,7 +47,7 @@ namespace PunchedCards.BitVectors
             return new BitVectorHashSet(PunchInternal(indicesList), indicesList.Count);
         }
 
-        protected override bool IsBitActive(int index)
+        public override bool IsBitActive(int index)
         {
             return _hashSet.Contains(index);
         }

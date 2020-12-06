@@ -10,7 +10,7 @@ namespace PunchedCards.BitVectors
 
         public abstract IBitVector Punch(IEnumerable<int> indices);
 
-        protected abstract bool IsBitActive(int index);
+        public abstract bool IsBitActive(int index);
 
         protected IEnumerable<int> PunchInternal(IEnumerable<int> indices)
         {

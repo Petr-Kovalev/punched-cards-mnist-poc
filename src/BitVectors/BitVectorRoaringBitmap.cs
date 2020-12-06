@@ -27,7 +27,7 @@ namespace PunchedCards.BitVectors
             return new BitVectorRoaringBitmap(PunchInternal(indicesList), indicesList.Count);
         }
 
-        protected override bool IsBitActive(int index)
+        public override bool IsBitActive(int index)
         {
             return _roaringBitmap.Contains((uint) index);
         }
