@@ -9,10 +9,12 @@ namespace PunchedCards
 {
     internal static class PunchedCards
     {
+        private static readonly IBitVectorFactory BitVectorFactory = new BitVectorFactoryRoaringBitmap();
+
         private static void Main()
         {
-            var trainingData = DataHelper.ReadTrainingData().ToList();
-            var testData = DataHelper.ReadTestData().ToList();
+            var trainingData = DataHelper.ReadTrainingData(BitVectorFactory).ToList();
+            var testData = DataHelper.ReadTestData(BitVectorFactory).ToList();
 
             var punchedCardBitLengths = new[] {32, 64, 128, 256, 512, 1024, 2048, 4096};
 
@@ -28,7 +30,7 @@ namespace PunchedCards
             {
                 Console.WriteLine("Punched card bit length: " + punchedCardBitLength);
 
-                var puncher = new RandomPuncher(punchedCardBitLength);
+                IPuncher<string, IBitVector, IBitVector> puncher = new RandomPuncher(punchedCardBitLength, BitVectorFactory);
                 var punchedCardsPerKeyPerLabel = GetPunchedCardsPerKeyPerLabel(trainingData, puncher);
 
                 if (enableTimeLogging)
@@ -68,7 +70,7 @@ namespace PunchedCards
             IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>> topPunchedCardsPerLabel,
             List<Tuple<IBitVector, IBitVector>> trainingData,
             List<Tuple<IBitVector, IBitVector>> testData,
-            RandomPuncher puncher)
+            IPuncher<string, IBitVector, IBitVector> puncher)
         {
             Console.WriteLine("Unique input combinations per punched card (descending): " +
                               GetPunchedCardsPerLabelString(topPunchedCardsPerLabel));
@@ -138,7 +140,7 @@ namespace PunchedCards
 
             for (byte i = 0; i < DataHelper.LabelsCount; i++)
             {
-                var label = DataHelper.GetLabelBitVector(i);
+                var label = DataHelper.GetLabelBitVector(i, BitVectorFactory);
 
                 var topPunchedCardsPerSpecificLabel = punchedCardsPerKeyPerLabel
                     .OrderByDescending(punchedCardPerLabel => punchedCardPerLabel.Value[label].Count)

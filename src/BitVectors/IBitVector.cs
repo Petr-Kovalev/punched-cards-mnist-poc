@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace PunchedCards.BitVectors
+﻿namespace PunchedCards.BitVectors
 {
     internal interface IBitVector
     {
         int Count { get; }
 
-        int HammingDistance(IBitVector bitVector);
+        bool IsBitActive(int index);
 
-        IBitVector Punch(IEnumerable<int> indices);
+        int HammingDistance(IBitVector bitVector);
     }
 }

@@ -21,25 +21,9 @@ namespace PunchedCards.BitVectors
 
         public int Count { get; }
 
-        public IBitVector Punch(IEnumerable<int> indices)
+        public bool IsBitActive(int index)
         {
-            var indicesList = indices.ToList();
-            return new BitVectorRoaringBitmap(PunchBitIndices(indicesList), indicesList.Count);
-        }
-
-        private IEnumerable<int> PunchBitIndices(IEnumerable<int> indices)
-        {
-            var currentIndex = 0;
-
-            foreach (var index in indices)
-            {
-                if (_roaringBitmap.Contains((uint) index))
-                {
-                    yield return currentIndex;
-                }
-
-                currentIndex++;
-            }
+            return _roaringBitmap.Contains((uint) index);
         }
 
         public int HammingDistance(IBitVector bitVector)

@@ -10,40 +10,38 @@ namespace PunchedCards.Helpers
     {
         internal const int LabelsCount = 10;
 
-        private static readonly IBitVectorFactory BitVectorFactory = new BitVectorFactoryRoaringBitmap();
-
-        internal static IEnumerable<Tuple<IBitVector, IBitVector>> ReadTrainingData()
+        internal static IEnumerable<Tuple<IBitVector, IBitVector>> ReadTrainingData(IBitVectorFactory bitVectorFactory)
         {
-            return ReaData(QmnistReader.ReadTrainingData);
+            return ReaData(QmnistReader.ReadTrainingData, bitVectorFactory);
         }
 
-        internal static IEnumerable<Tuple<IBitVector, IBitVector>> ReadTestData()
+        internal static IEnumerable<Tuple<IBitVector, IBitVector>> ReadTestData(IBitVectorFactory bitVectorFactory)
         {
-            return ReaData(QmnistReader.ReadTestData);
+            return ReaData(QmnistReader.ReadTestData, bitVectorFactory);
         }
 
-        private static IEnumerable<Tuple<IBitVector, IBitVector>> ReaData(Func<IEnumerable<Image>> readImagesFunction)
+        private static IEnumerable<Tuple<IBitVector, IBitVector>> ReaData(Func<IEnumerable<Image>> readImagesFunction, IBitVectorFactory bitVectorFactory)
         {
             return readImagesFunction()
                 .Select(image => new Tuple<IBitVector, IBitVector>(
-                    GetValueBitVector(image.Data),
-                    GetLabelBitVector(image.Label)));
+                    GetValueBitVector(image.Data, bitVectorFactory),
+                    GetLabelBitVector(image.Label, bitVectorFactory)));
         }
 
-        internal static IBitVector GetLabelBitVector(byte label)
+        internal static IBitVector GetLabelBitVector(byte label, IBitVectorFactory bitVectorFactory)
         {
-            return BitVectorFactory.Create(
+            return bitVectorFactory.Create(
                 GetActiveBitIndices(label).Where(i => i >= 4).Select(i => i - 4),
                 4);
         }
 
-        private static IBitVector GetValueBitVector(byte[,] imageData)
+        private static IBitVector GetValueBitVector(byte[,] imageData, IBitVectorFactory bitVectorFactory)
         {
             const byte height = 28;
             const byte width = 28;
             const int pixelRepresentationSizeInBits = 8;
 
-            return BitVectorFactory.Create(
+            return bitVectorFactory.Create(
                 GetActiveBitIndices(imageData, height, width, pixelRepresentationSizeInBits),
                 height * width * pixelRepresentationSizeInBits);
         }
