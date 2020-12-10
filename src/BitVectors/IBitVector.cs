@@ -6,6 +6,6 @@
 
         bool IsBitActive(int index);
 
-        int HammingDistance(IBitVector bitVector);
+        int AndCardinality(IBitVector bitVector);
     }
 }

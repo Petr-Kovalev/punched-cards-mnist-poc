@@ -80,7 +80,7 @@ namespace PunchedCards.Helpers
         private static int CalculateMatchingScore(IBitVector punchedInput, IReadOnlyCollection<Tuple<IBitVector, int>> labelPunchedInputs)
         {
             return labelPunchedInputs.Sum(labelPunchedInput =>
-                punchedInput.HammingDistance(labelPunchedInput.Item1) * labelPunchedInput.Item2);
+                punchedInput.AndCardinality(labelPunchedInput.Item1) * labelPunchedInput.Item2);
         }
 
         internal static int CalculateBitVectorsScore(IReadOnlyCollection<Tuple<IBitVector, int>> bitVectors)
