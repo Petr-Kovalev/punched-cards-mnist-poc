@@ -21,8 +21,7 @@ namespace PunchedCards.Helpers
                 .AsParallel()
                 .ForAll(dataItem =>
                 {
-                    var matchingScoresPerLabelPerPunchedCard =
-                        CountCorrectRecognitionsPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
+                    var matchingScoresPerLabelPerPunchedCard = CalculateMatchingScoresPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
                     var topLabel = matchingScoresPerLabelPerPunchedCard
                         .OrderBy(s => s.Value.Sum(v => v.Value))
                         .First()
@@ -40,47 +39,51 @@ namespace PunchedCards.Helpers
         }
 
         internal static IDictionary<IBitVector, IDictionary<string, int>>
-            CountCorrectRecognitionsPerLabelPerPunchedCard(
+            CalculateMatchingScoresPerLabelPerPunchedCard(
                 IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
                     punchedCardsCollection,
                 IBitVector input,
                 IPuncher<string, IBitVector, IBitVector> puncher)
         {
-            var correctRecognitionsPerLabelPerPunchedCard = new Dictionary<IBitVector, IDictionary<string, int>>();
+            var matchingScoresPerLabelPerPunchedCard = new Dictionary<IBitVector, IDictionary<string, int>>();
 
             foreach (var punchedCardsCollectionItem in punchedCardsCollection)
             {
                 var punchedInput = puncher.Punch(punchedCardsCollectionItem.Key, input).Input;
                 foreach (var label in punchedCardsCollectionItem.Value)
                 {
-                    ProcessTheSpecificLabel(correctRecognitionsPerLabelPerPunchedCard, punchedCardsCollectionItem.Key,
+                    ProcessTheSpecificLabel(matchingScoresPerLabelPerPunchedCard, punchedCardsCollectionItem.Key,
                         label, punchedInput);
                 }
             }
 
-            return correctRecognitionsPerLabelPerPunchedCard;
+            return matchingScoresPerLabelPerPunchedCard;
         }
 
         private static void ProcessTheSpecificLabel(
-            IDictionary<IBitVector, IDictionary<string, int>> correctRecognitionsPerLabelPerPunchedCard,
+            IDictionary<IBitVector, IDictionary<string, int>> matchingScoresPerLabelPerPunchedCard,
             string punchedCardKey,
             KeyValuePair<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>> label,
             IBitVector punchedInput)
         {
-            var punchedCardCorrectRecognitionsPerLabel =
-                label.Value.Sum(punchedLabelInput =>
-                    punchedInput.HammingDistance(punchedLabelInput.Item1) * punchedLabelInput.Item2);
+            var matchingScorePerLabel = CalculateMatchingScore(punchedInput, label.Value);
 
-            if (!correctRecognitionsPerLabelPerPunchedCard.TryGetValue(label.Key, out var dictionary))
+            if (!matchingScoresPerLabelPerPunchedCard.TryGetValue(label.Key, out var dictionary))
             {
                 dictionary = new Dictionary<string, int>();
-                correctRecognitionsPerLabelPerPunchedCard[label.Key] = dictionary;
+                matchingScoresPerLabelPerPunchedCard[label.Key] = dictionary;
             }
 
-            dictionary.Add(punchedCardKey, punchedCardCorrectRecognitionsPerLabel);
+            dictionary.Add(punchedCardKey, matchingScorePerLabel);
         }
 
-        internal static int GetBitVectorsRank(IReadOnlyCollection<Tuple<IBitVector, int>> bitVectors)
+        private static int CalculateMatchingScore(IBitVector punchedInput, IReadOnlyCollection<Tuple<IBitVector, int>> labelPunchedInputs)
+        {
+            return labelPunchedInputs.Sum(punchedLabelInput =>
+                punchedInput.HammingDistance(punchedLabelInput.Item1) * punchedLabelInput.Item2);
+        }
+
+        internal static int CalculateBitVectorsScore(IReadOnlyCollection<Tuple<IBitVector, int>> bitVectors)
         {
             return bitVectors.Count;
         }
