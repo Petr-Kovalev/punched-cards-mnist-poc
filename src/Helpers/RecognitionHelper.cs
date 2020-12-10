@@ -23,7 +23,7 @@ namespace PunchedCards.Helpers
                 {
                     var matchingScoresPerLabelPerPunchedCard = CalculateMatchingScoresPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
                     var topLabel = matchingScoresPerLabelPerPunchedCard
-                        .OrderBy(s => s.Value.Sum(v => v.Value))
+                        .OrderByDescending(s => s.Value.Sum(v => v.Value))
                         .First()
                         .Key;
                     if (topLabel.Equals(dataItem.Item2))
