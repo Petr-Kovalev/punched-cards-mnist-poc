@@ -79,5 +79,10 @@ namespace PunchedCards.Helpers
 
             dictionary.Add(punchedCardKey, punchedCardCorrectRecognitionsPerLabel);
         }
+
+        internal static int GetBitVectorsRank(IReadOnlyCollection<Tuple<IBitVector, int>> bitVectors)
+        {
+            return bitVectors.Count;
+        }
     }
 }

@@ -122,9 +122,9 @@ namespace PunchedCards
         {
             var globalTopPunchedCard = punchedCardsPerKeyPerLabel
                 .OrderByDescending(punchedCardPerKeyPerLabel =>
-                    punchedCardPerKeyPerLabel
-                        .Value
-                        .Sum(labelAndInputs => labelAndInputs.Value.Count))
+                    punchedCardPerKeyPerLabel.Value
+                        .AsParallel()
+                        .Sum(labelAndInputs => RecognitionHelper.GetBitVectorsRank(labelAndInputs.Value)))
                 .First();
             return new Dictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
                 {{globalTopPunchedCard.Key, globalTopPunchedCard.Value}};
@@ -143,7 +143,8 @@ namespace PunchedCards
                 var label = DataHelper.GetLabelBitVector(i, BitVectorFactory);
 
                 var topPunchedCardsPerSpecificLabel = punchedCardsPerKeyPerLabel
-                    .OrderByDescending(punchedCardPerLabel => punchedCardPerLabel.Value[label].Count)
+                    .OrderByDescending(punchedCardPerLabel =>
+                        RecognitionHelper.GetBitVectorsRank(punchedCardPerLabel.Value[label]))
                     .Take(topPunchedCardsPerKeyPerLabelCount);
 
                 foreach (var topPunchedCardPerSpecificLabel in topPunchedCardsPerSpecificLabel)
