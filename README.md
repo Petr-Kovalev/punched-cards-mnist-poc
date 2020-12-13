@@ -6,6 +6,8 @@ Performing single-shot QMNIST handwritten digits recognition by lookup over the 
 
 Same algorithm applied to the Fashion-MNIST dataset [is here](https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc)
 
+Results and program output are from [this version](https://github.com/Petr-Kovalev/punched-cards-qmnist-poc/tree/a706feb5bd65abe53fa25a68d7749b4f473b5908)
+
 ### Best result chart:
 ![Preview1](./docs/images/chart.png)
 
