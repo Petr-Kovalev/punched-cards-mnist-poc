@@ -23,7 +23,7 @@ namespace PunchedCards.Helpers
                 {
                     var matchingScoresPerLabelPerPunchedCard = CalculateMatchingScoresPerLabelPerPunchedCard(punchedCardsCollection, dataItem.Item1, puncher);
                     var topLabel = matchingScoresPerLabelPerPunchedCard
-                        .OrderByDescending(s => s.Value.Sum(v => v.Value))
+                        .OrderByDescending(p => p.Value.Sum(keyScore => keyScore.Value))
                         .First()
                         .Key;
                     if (topLabel.Equals(dataItem.Item2))
@@ -38,14 +38,14 @@ namespace PunchedCards.Helpers
             return correctRecognitionsPerLabel;
         }
 
-        internal static IDictionary<IBitVector, IDictionary<string, int>>
+        internal static IDictionary<IBitVector, IDictionary<string, double>>
             CalculateMatchingScoresPerLabelPerPunchedCard(
                 IDictionary<string, IDictionary<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>>>
                     punchedCardsCollection,
                 IBitVector input,
                 IPuncher<string, IBitVector, IBitVector> puncher)
         {
-            var matchingScoresPerLabelPerPunchedCard = new Dictionary<IBitVector, IDictionary<string, int>>();
+            var matchingScoresPerLabelPerPunchedCard = new Dictionary<IBitVector, IDictionary<string, double>>();
 
             foreach (var punchedCardsCollectionItem in punchedCardsCollection)
             {
@@ -61,7 +61,7 @@ namespace PunchedCards.Helpers
         }
 
         private static void ProcessTheSpecificLabel(
-            IDictionary<IBitVector, IDictionary<string, int>> matchingScoresPerLabelPerPunchedCard,
+            IDictionary<IBitVector, IDictionary<string, double>> matchingScoresPerLabelPerPunchedCard,
             string punchedCardKey,
             KeyValuePair<IBitVector, IReadOnlyCollection<Tuple<IBitVector, int>>> label,
             IBitVector punchedInput)
@@ -70,22 +70,33 @@ namespace PunchedCards.Helpers
 
             if (!matchingScoresPerLabelPerPunchedCard.TryGetValue(label.Key, out var dictionary))
             {
-                dictionary = new Dictionary<string, int>();
+                dictionary = new Dictionary<string, double>();
                 matchingScoresPerLabelPerPunchedCard[label.Key] = dictionary;
             }
 
             dictionary.Add(punchedCardKey, matchingScorePerLabel);
         }
 
-        private static int CalculateMatchingScore(IBitVector punchedInput, IReadOnlyCollection<Tuple<IBitVector, int>> labelPunchedInputs)
+        private static double CalculateMatchingScore(IBitVector punchedInput,
+            IEnumerable<Tuple<IBitVector, int>> labelPunchedInputs)
         {
             return labelPunchedInputs.Sum(labelPunchedInput =>
-                punchedInput.AndCardinality(labelPunchedInput.Item1) * labelPunchedInput.Item2);
+                CalculateMatchingScore(punchedInput, labelPunchedInput.Item1) * labelPunchedInput.Item2);
         }
 
         internal static int CalculateBitVectorsScore(IReadOnlyCollection<Tuple<IBitVector, int>> bitVectors)
         {
             return bitVectors.Count;
+        }
+
+        private static double CalculateMatchingScore(IBitVector firstBitVector, IBitVector secondBitVector)
+        {
+            if (firstBitVector.Count != secondBitVector.Count)
+            {
+                throw new Exception("Counts does not match!");
+            }
+
+            return firstBitVector.AndCardinality(secondBitVector) - firstBitVector.XorCardinality(secondBitVector) / 10d;
         }
     }
 }

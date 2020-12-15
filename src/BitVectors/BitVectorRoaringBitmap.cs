@@ -36,6 +36,16 @@ namespace PunchedCards.BitVectors
             return (int) _roaringBitmap.AndCardinality(((BitVectorRoaringBitmap) bitVector)._roaringBitmap);
         }
 
+        public int XorCardinality(IBitVector bitVector)
+        {
+            if (Count != bitVector.Count)
+            {
+                throw new Exception("Counts does not match!");
+            }
+
+            return (int)_roaringBitmap.XorCardinality(((BitVectorRoaringBitmap)bitVector)._roaringBitmap);
+        }
+
         public override bool Equals(object obj)
         {
             return obj is BitVectorRoaringBitmap other &&
