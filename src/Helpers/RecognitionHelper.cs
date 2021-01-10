@@ -80,8 +80,17 @@ namespace PunchedCards.Helpers
         private static double CalculateMatchingScore(IBitVector punchedInput,
             IEnumerable<Tuple<IBitVector, int>> labelPunchedInputs)
         {
-            return labelPunchedInputs.Sum(labelPunchedInput =>
-                CalculateMatchingScore(punchedInput, labelPunchedInput.Item1) * labelPunchedInput.Item2);
+            var matchingScoreSum = 0d;
+            var count = 0;
+
+            foreach (var labelPunchedInput in labelPunchedInputs)
+            {
+                matchingScoreSum += CalculateMatchingScore(punchedInput, labelPunchedInput.Item1) *
+                                 labelPunchedInput.Item2;
+                count += labelPunchedInput.Item2;
+            }
+
+            return matchingScoreSum / count;
         }
 
         internal static int CalculateBitVectorsScore(IReadOnlyCollection<Tuple<IBitVector, int>> bitVectors)
