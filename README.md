@@ -2,7 +2,7 @@
 
 *Object recognition by sparse random binary data lookup. Complementary code for [this article](https://petr-kovalev.medium.com/punched-cards-object-recognition-97523a98857b)*
 
-Performing single-shot QMNIST handwritten digits recognition by lookup over the most different sparse input bit sets of the training data (out of 28⋅28⋅8=6272 bits per training sample)
+Performing single-shot QMNIST handwritten digits recognition by lookup over the most different sparse input bit sets of the training data (out of 28⋅28⋅8 = 6272 bits per training sample)
 
 Same algorithm applied to the Fashion-MNIST dataset [is here](https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc)
 
@@ -163,9 +163,9 @@ Training results: 33725 correct recognitions of 60000
 Test results: 33770 correct recognitions of 60000
 
 Top punched cards per label:
-Unique input combinations per punched card (descending): {6131, 5958, 5923, 5918, 5851, 5421: sum 35202}, {5949, 5842: sum 11791}, {6482}, {6265}: total sum 59740
-Training results: 32826 correct recognitions of 60000
-Test results: 33052 correct recognitions of 60000
+Unique input combinations per punched card (descending): {6131, 5923, 5918: sum 17972}, {5958, 5851: sum 11809}, {5949, 5842: sum 11791}, {6482}, {6265}, {5421}: total sum 59740
+Training results: 29307 correct recognitions of 60000
+Test results: 29685 correct recognitions of 60000
 
 Punched card bit length: 256
 
@@ -195,13 +195,13 @@ Punched card bit length: 1024
 
 Global top punched card:
 Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
-Training results: 41455 correct recognitions of 60000
-Test results: 41430 correct recognitions of 60000
+Training results: 40703 correct recognitions of 60000
+Test results: 40672 correct recognitions of 60000
 
 Top punched cards per label:
 Unique input combinations per punched card (descending): {6742, 6265, 6131, 5958, 5949, 5923, 5918, 5851, 5842, 5421: sum 60000}: total sum 60000
-Training results: 41455 correct recognitions of 60000
-Test results: 41430 correct recognitions of 60000
+Training results: 40703 correct recognitions of 60000
+Test results: 40672 correct recognitions of 60000
 
 Punched card bit length: 2048
 
