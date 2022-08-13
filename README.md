@@ -6,7 +6,7 @@ Performing single-shot QMNIST handwritten digits recognition by lookup over the 
 
 Work continued in [this repository](https://github.com/Petr-Kovalev/punched-cards-qmnist) by switching to smaller 'punched card' bit sizes and adjacency matrices instead of sparse bit vector operations
 
-Same algorithm applied to the Fashion-MNIST dataset [is here](https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc)
+The same algorithm applied to the Fashion-MNIST dataset [is here](https://github.com/Petr-Kovalev/punched-cards-fashion-mnist-poc)
 
 Results and program output are from [this code version](https://github.com/Petr-Kovalev/punched-cards-qmnist-poc/tree/a706feb5bd65abe53fa25a68d7749b4f473b5908)
 
